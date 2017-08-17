@@ -1,0 +1,64 @@
+/* Tools */
+/* Colors */
+/* Gradients */
+/* Font stacks */
+/* Base */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  color: inherit; }
+  *::selection {
+    background: #111;
+    color: #eeeeee; }
+
+html {
+  font-family: sans-serif;
+  font-weight: 300;
+  color: #111;
+  font-size: 20px;
+  line-height: 1; }
+
+body {
+  min-height: 100vh;
+  background: #eee; }
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0; }
+
+h1, h2, h3,
+h4, h5, h6,
+pre, code {
+  font-size: 100%;
+  font-weight: normal; }
+
+ol,
+ul {
+  list-style: none; }
+
+a {
+  text-decoration: none; }
+
+textarea {
+  resize: none; }
+
+img {
+  width: 100%;
+  display: block; }
+
+/* Utilities */
+.in {
+  width: 100%; }
+
+/* Atoms */
+/* Molecules */
+/* Organisms */
+/* Templates */
+
+/*# sourceMappingURL=styles.css.map */
