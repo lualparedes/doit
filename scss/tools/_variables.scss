@@ -1,12 +1,23 @@
 /* Colors */
-$c-bg: #eee !default;
-$c-text: #111 !default;
-$c-selection: #111 !default;
+$c-bg: #f9f9f9 !default;
+$c-text: #333;
+$c-selection: #ccc;
+
+$c-border: #b3b3b3;
+$c-bghover: #e6e6e6;
 
 /* Gradients */
-// Prefixed with g-
+$g-accent: linear-gradient(to right,#fa7d96,#fec2a0);
+$g-progress: linear-gradient(to right,#0be4a7,#89e358);
+
+/* Shadows */
+$s-lvl1: 0 0 8px rgba(#000,.2);
+$s-lvl2: 0 0 16px rgba(#000,.3);
 
 /* Font stacks */
 $f-headers: sans-serif !default;
-$f-body: sans-serif !default;
+$f-body: 'Helvetica Neue', sans-serif !default;
 $f-base-size: 20px !default;
+
+/* Transition */
+$t-regular: all .25s ease;

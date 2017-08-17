@@ -1,7 +1,9 @@
 /* Tools */
 /* Colors */
 /* Gradients */
+/* Shadows */
 /* Font stacks */
+/* Transition */
 /* Base */
 * {
   box-sizing: border-box;
@@ -14,19 +16,20 @@
   line-height: inherit;
   color: inherit; }
   *::selection {
-    background: #111;
-    color: #eeeeee; }
+    background: #ccc;
+    color: #333333; }
 
 html {
-  font-family: sans-serif;
+  font-family: "Helvetica Neue", sans-serif;
   font-weight: 300;
-  color: #111;
+  color: #333;
   font-size: 20px;
+  font-weight: bold;
   line-height: 1; }
 
 body {
   min-height: 100vh;
-  background: #eee; }
+  background: #f9f9f9; }
 
 table {
   border-collapse: collapse;
@@ -48,17 +51,254 @@ a {
 textarea {
   resize: none; }
 
+button {
+  background: none; }
+
 img {
   width: 100%;
   display: block; }
 
 /* Utilities */
+.wrap {
+  margin: 254px auto 0 auto;
+  padding-top: 24px;
+  width: 80%;
+  max-width: 900px; }
+
+.card-wrap {
+  display: flex; }
+
 .in {
   width: 100%; }
 
 /* Atoms */
+@font-face {
+  font-family: 'icomoon';
+  src: url("../fonts/icomoon.eot?6igoop");
+  src: url("../fonts/icomoon.eot?6igoop#iefix") format("embedded-opentype"), url("../fonts/icomoon.ttf?6igoop") format("truetype"), url("../fonts/icomoon.woff?6igoop") format("woff");
+  font-weight: normal;
+  font-style: normal; }
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; }
+
+.icon-check:before {
+  content: "\e900"; }
+
+.icon-unchecked:before {
+  content: "\e901"; }
+
+.icon-config:before {
+  content: "\e902"; }
+
+.icon-delete:before {
+  content: "\e903"; }
+
+.icon-add:before {
+  content: "\e904"; }
+
+.icon-chevron-up:before {
+  content: "\e905"; }
+
+.icon-chevron-down:before {
+  content: "\e906"; }
+
+.icon-menu:before {
+  content: "\e907"; }
+
+.icon-star:before {
+  content: "\e908"; }
+
+.icon-heart:before {
+  content: "\e909"; }
+
+.showmore {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  position: absolute;
+  top: 0;
+  padding: 0 12px;
+  border: 1px solid #b3b3b3;
+  color: #b3b3b3;
+  font-weight: bold;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  text-align: center;
+  transition: all 0.25s ease;
+  cursor: pointer; }
+  .showmore:hover {
+    background: #f9f9f9; }
+
+.actionbutton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #b3b3b3;
+  width: 36px;
+  height: 36px;
+  border-radius: 4px; }
+  .actionbutton:hover {
+    background: #e6e6e6;
+    color: #333; }
+  .actionbutton > span {
+    display: block; }
+
+.progress-bar {
+  background: #e6e6e6;
+  height: 8px; }
+
+.progress {
+  width: 50%;
+  height: 8px;
+  border-radius: 4px; }
+
+.progress.--accent {
+  background: linear-gradient(to right, #fa7d96, #fec2a0); }
+
+.progress.--progress {
+  background: linear-gradient(to right, #0be4a7, #89e358); }
+
+.circularimage {
+  border-radius: 100%;
+  overflow: hidden; }
+
 /* Molecules */
+.status {
+  display: flex;
+  align-items: center;
+  width: 80%;
+  max-width: 900px; }
+  .status > *[class^="icon-"] {
+    flex-basis: 32px; }
+  .status > .icon-heart {
+    background: linear-gradient(to right, #fa7d96, #fec2a0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: .75rem; }
+  .status > .icon-star {
+    background: linear-gradient(to right, #0be4a7, #89e358);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+    top: -2px; }
+  .status > .progress-bar {
+    justify-self: flex-end;
+    flex-grow: 1;
+    border-radius: 4px; }
+
+.user-info > .name {
+  padding: 6px 8px;
+  font-size: 1rem;
+  border-bottom: 2px solid #b3b3b3; }
+.user-info > .statusinfo {
+  display: flex;
+  padding: 12px 8px;
+  font-size: .8rem; }
+  .user-info > .statusinfo div {
+    margin-right: 2rem; }
+  .user-info > .statusinfo div:last-child {
+    margin-right: 0; }
+
 /* Organisms */
+header {
+  background: #fff;
+  box-shadow: 0 0 16px rgba(0, 0, 0, 0.3);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%; }
+
+.header-user {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid #b3b3b3;
+  padding: 24px; }
+  .header-user > .avatar {
+    width: 80px;
+    margin-right: 24px; }
+
+.header-status {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  position: relative;
+  height: 120px;
+  padding: 24px 0; }
+
+.card {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #b3b3b3;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  min-height: 80px;
+  padding: 24px;
+  position: relative;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  flex-grow: 1; }
+  .card--lvl1::after {
+    position: absolute;
+    content: "";
+    background: #b3b3b3;
+    width: 2px;
+    height: 16px;
+    left: 23px;
+    bottom: -16px; }
+  .card__task {
+    margin-right: 160px; }
+  .card__buttons {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 24px; }
+    .card__buttons .actionbutton {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      display: inline-block;
+      margin-left: 8px; }
+    .card__buttons .actionbutton:first-child {
+      margin-left: 0; }
+  .card__progress {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 100%;
+    background: #f9f9f9; }
+    .card__progress .progress {
+      height: 2px;
+      border-radius: 0; }
+
+.card-edge {
+  position: relative;
+  margin-bottom: 16px; }
+  .card-edge--lvl2 {
+    width: 48px;
+    flex-basis: 48px; }
+    .card-edge--lvl2::after {
+      position: absolute;
+      content: "";
+      background: #b3b3b3;
+      width: 24px;
+      height: 2px;
+      top: 50%;
+      transform: translateY(-50%);
+      right: 0; }
+
 /* Templates */
 
 /*# sourceMappingURL=styles.css.map */

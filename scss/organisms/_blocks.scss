@@ -1,0 +1,71 @@
+// .card
+// ¨¨¨¨¨
+// Basic element to display tasks
+// @notes
+// [1] Only use it if the task has subtasks (otherwise it makes no sense to add
+//     the tree-like structure)
+.card {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid $c-border;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    min-height: 80px;
+    padding: 24px;
+    position: relative;
+    box-shadow: $s-lvl1;
+    flex-grow: 1;
+    &--lvl1 { // [1]
+        &::after {
+            @include pseudo($w:2px, $h:16px, $bg:$c-border);
+            left: 24-1px;
+            bottom: -16px;
+        }
+    }
+    &__task {
+        margin-right: 136+24px;
+    }
+    &__buttons {
+        @include center-absolute($y: true);
+        right: 24px;
+        .actionbutton {
+            @include center-flex();
+            display: inline-block;
+            margin-left: 8px;
+        }
+        .actionbutton:first-child {
+            margin-left: 0;
+        }
+    }
+    &__progress {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: 2px;
+        width: 100%;
+        background: $c-bg;
+        .progress {
+            height: 2px;
+            border-radius: 0;
+        }
+    }
+}
+
+// meant as a placeholder for the tree structure (in case the card isn't at 
+// root level)
+.card-edge {
+    position: relative;
+    margin-bottom: 16px;
+    &--lvl2 {
+        width: 48px;
+        flex-basis: 48px;
+        &::after {
+            @include pseudo($w:24px, $h:2px, $bg:$c-border);
+            top: 50%;
+            transform: translateY(-50%);
+            right: 0;
+        }
+    }
+}
+

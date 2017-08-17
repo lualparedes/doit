@@ -1,0 +1,18 @@
+.progress-bar {
+    background: $c-bghover;
+    height: 8px;
+}
+
+.progress {
+    width: 50%;
+    height: 8px;
+    border-radius: 4px;
+}
+
+.progress.--accent {
+    background: $g-accent;
+}
+
+.progress.--progress {
+    background: $g-progress;
+}

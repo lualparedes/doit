@@ -15,14 +15,20 @@
 @import 'utils/keyframes';
 
 /* Atoms */
-//@import 'atoms/icons';
+@import 'atoms/icons';
 @import 'atoms/buttons';
+@import 'atoms/bars';
+@import 'atoms/media';
 
 /* Molecules */
+@import 'molecules/status';
+@import 'molecules/info';
 
 /* Organisms */
 @import 'organisms/header';
 @import 'organisms/nav';
 @import 'organisms/footer';
+@import 'organisms/blocks';
+
 
 /* Templates */

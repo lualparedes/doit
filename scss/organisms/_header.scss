@@ -1,0 +1,26 @@
+header {
+    background: #fff;
+    box-shadow: $s-lvl2;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.header-user {
+    @include center-flex();
+    border-bottom: 1px solid $c-border;
+    padding: 24px;
+    & > .avatar {
+        width: 8*10px;
+        margin-right: 24px;
+    }
+}
+
+.header-status {
+    @include center-flex();
+    flex-wrap: wrap;
+    position: relative;
+    height: 120px;
+    padding: 24px 0;
+}

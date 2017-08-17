@@ -1,0 +1,27 @@
+.status {
+    display: flex;
+    align-items: center;
+    width: 80%;
+    max-width: 900px; 
+    > *[class^="icon-"] {
+        flex-basis: 32px;
+    }
+    > .icon-heart {
+        background: $g-accent;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: .75rem;
+    }
+    > .icon-star {
+        background: $g-progress;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        position: relative;
+        top: -2px;
+    }
+    > .progress-bar {
+        justify-self: flex-end;
+        flex-grow: 1;
+        border-radius: 4px;
+    }
+}
