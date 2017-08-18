@@ -1,13 +1,13 @@
 .user-info {
-    & > .name {
+    &__name {
         padding: 6px 8px;
-        font-size: 1rem;
+        font-size: rem(20);
+        font-weight: bold;
         border-bottom: 2px solid $c-border;
     }
-    & > .statusinfo {
+    &__status {
         display: flex;
         padding: 12px 8px;
-        font-size: .8rem;
         div {
             margin-right: 2rem;
         }

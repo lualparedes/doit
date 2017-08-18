@@ -15,14 +15,14 @@
 <header>
 
     <div class="header-user">
-        <div class="circularimage avatar">
+        <div class="header-user__avatar circularimage">
             <img src="img/avatar.png" alt="avatar">
         </div>
         <div class="user-info">
-            <div class="name">
+            <h1 class="user-info__name">
                 @lual
-            </div>
-            <div class="statusinfo">
+            </h1>
+            <div class="user-info__status">
                 <div>XP: <span class="js-xp">N</span></div>
                 <div>Health: <span class="js-health">N</span></div>
                 <div>Score: <span class="js-score">N</span></div>
@@ -40,7 +40,7 @@
            <span class="icon-heart">
                
            </span>
-           <div class="progress-bar">
+           <div class="progress-bar progress-bar--status">
                <div class="progress --accent"> </div>
            </div>
        </div>
@@ -49,7 +49,7 @@
            <span class="icon-star">
                
            </span>
-           <div class="progress-bar">
+           <div class="progress-bar progress-bar--status">
                <div class="progress --progress"> </div>
            </div>
        </div>  
@@ -84,7 +84,8 @@
     </div>
 
     <div class="card-wrap">
-        <div class="card-edge card-edge--lvl2"></div>
+        <div class="card-edge card-edge--lvl2">
+        </div>
         <div class="card card--lvl2">
             <div class="card__task">This is a big big task meant to break the css</div>
             <div class="card__buttons">

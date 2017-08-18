@@ -21,10 +21,9 @@
 
 html {
   font-family: "Helvetica Neue", sans-serif;
-  font-weight: 300;
+  font-weight: 400;
   color: #333;
-  font-size: 20px;
-  font-weight: bold;
+  font-size: 16px;
   line-height: 1; }
 
 body {
@@ -62,7 +61,7 @@ img {
 .wrap {
   margin: 254px auto 0 auto;
   padding-top: 24px;
-  width: 80%;
+  width: 90%;
   max-width: 900px; }
 
 .card-wrap {
@@ -176,7 +175,7 @@ img {
 .status {
   display: flex;
   align-items: center;
-  width: 80%;
+  width: 90%;
   max-width: 900px; }
   .status > *[class^="icon-"] {
     flex-basis: 32px; }
@@ -191,22 +190,23 @@ img {
     -webkit-text-fill-color: transparent;
     position: relative;
     top: -2px; }
-  .status > .progress-bar {
-    justify-self: flex-end;
-    flex-grow: 1;
-    border-radius: 4px; }
 
-.user-info > .name {
+.progress-bar--status {
+  justify-self: flex-end;
+  flex-grow: 1;
+  border-radius: 4px; }
+
+.user-info__name {
   padding: 6px 8px;
-  font-size: 1rem;
+  font-size: 1.25rem;
+  font-weight: bold;
   border-bottom: 2px solid #b3b3b3; }
-.user-info > .statusinfo {
+.user-info__status {
   display: flex;
-  padding: 12px 8px;
-  font-size: .8rem; }
-  .user-info > .statusinfo div {
+  padding: 12px 8px; }
+  .user-info__status div {
     margin-right: 2rem; }
-  .user-info > .statusinfo div:last-child {
+  .user-info__status div:last-child {
     margin-right: 0; }
 
 /* Organisms */
@@ -216,7 +216,8 @@ header {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%; }
+  width: 100%;
+  z-index: 1; }
 
 .header-user {
   display: flex;
@@ -224,7 +225,7 @@ header {
   align-items: center;
   border-bottom: 1px solid #b3b3b3;
   padding: 24px; }
-  .header-user > .avatar {
+  .header-user__avatar {
     width: 80px;
     margin-right: 24px; }
 
@@ -244,8 +245,8 @@ header {
   border: 1px solid #b3b3b3;
   border-radius: 4px;
   margin-bottom: 16px;
-  min-height: 80px;
-  padding: 24px;
+  min-height: 50px;
+  padding: 1rem;
   position: relative;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
   flex-grow: 1; }
@@ -263,13 +264,13 @@ header {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    right: 24px; }
+    right: 6px; }
     .card__buttons .actionbutton {
       display: flex;
       justify-content: center;
       align-items: center;
       display: inline-block;
-      margin-left: 8px; }
+      margin-left: 4px; }
     .card__buttons .actionbutton:first-child {
       margin-left: 0; }
   .card__progress {

@@ -1,7 +1,7 @@
 .status {
     display: flex;
     align-items: center;
-    width: 80%;
+    width: 90%;
     max-width: 900px; 
     > *[class^="icon-"] {
         flex-basis: 32px;
@@ -19,9 +19,10 @@
         position: relative;
         top: -2px;
     }
-    > .progress-bar {
-        justify-self: flex-end;
-        flex-grow: 1;
-        border-radius: 4px;
-    }
+}
+
+.progress-bar--status {
+    justify-self: flex-end;
+    flex-grow: 1;
+    border-radius: 4px;
 }

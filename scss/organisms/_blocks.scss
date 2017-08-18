@@ -4,6 +4,7 @@
 // @notes
 // [1] Only use it if the task has subtasks (otherwise it makes no sense to add
 //     the tree-like structure)
+// [2] To visually ballance the extra padding of the button
 .card {
     display: flex;
     align-items: center;
@@ -11,8 +12,8 @@
     border: 1px solid $c-border;
     border-radius: 4px;
     margin-bottom: 16px;
-    min-height: 80px;
-    padding: 24px;
+    min-height: 50px;
+    padding: 1rem;
     position: relative;
     box-shadow: $s-lvl1;
     flex-grow: 1;
@@ -28,11 +29,11 @@
     }
     &__buttons {
         @include center-absolute($y: true);
-        right: 24px;
+        right: 16-10px; // [2]
         .actionbutton {
             @include center-flex();
             display: inline-block;
-            margin-left: 8px;
+            margin-left: 4px;
         }
         .actionbutton:first-child {
             margin-left: 0;

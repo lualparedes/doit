@@ -5,13 +5,14 @@ header {
     top: 0;
     left: 0;
     width: 100%;
+    z-index: z(header);
 }
 
 .header-user {
     @include center-flex();
     border-bottom: 1px solid $c-border;
     padding: 24px;
-    & > .avatar {
+    &__avatar {
         width: 8*10px;
         margin-right: 24px;
     }
