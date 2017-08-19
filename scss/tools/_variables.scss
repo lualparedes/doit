@@ -5,14 +5,20 @@ $c-selection: #ccc;
 
 $c-border: #b3b3b3;
 $c-bghover: #e6e6e6;
+$c-backdrop: rgba(#000,.5);
+$c-accent: #fc9e9b;
+$c-bgdark: #333;
 
 /* Gradients */
 $g-accent: linear-gradient(to right,#fa7d96,#fec2a0);
+$g-accenthover: linear-gradient(to right, darken(#fa7d96,5),darken(#fec2a0,5));
 $g-progress: linear-gradient(to right,#0be4a7,#89e358);
 
 /* Shadows */
 $s-lvl1: 0 0 8px rgba(#000,.2);
 $s-lvl2: 0 0 16px rgba(#000,.3);
+$s-lvl3: 0 0 20px rgba(#000,.4);
+$s-lvl4: 0 16px 16px -10px rgba(#000,.5);
 
 /* Font stacks */
 $f-headers: sans-serif !default;

@@ -8,3 +8,13 @@
 .card-wrap {
     display: flex;
 }
+
+.backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: z(backdrop);
+    width: 100vw;
+    height: 100vh;
+    background: $c-backdrop;
+}

@@ -1,0 +1,24 @@
+.notif {
+    @include boxie($h: 48px);
+    @include center-flex();
+    position: fixed;
+    right: 24px;
+    z-index: z(notification);
+    color: #fff;
+    font-weight: bold;
+    box-shadow: $s-lvl4;
+    text-align: center;
+    &__emo {
+        margin-left: 8px;
+        width: 24px;
+    }
+    &--points {
+        top: 64px;
+        background: $g-progress;
+        min-width: 64px;
+    }
+    &--msg {
+        top: 128px;
+        background: $c-bgdark;
+    }
+}

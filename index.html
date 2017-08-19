@@ -58,8 +58,7 @@
 
 </header>
 
-	
-<!-- atoms -->
+
 
 <div class="wrap">
     
@@ -73,7 +72,7 @@
                 <button class="actionbutton">
                     <span class="icon-delete"></span>
                 </button>
-                <button class="actionbutton">
+                <button class="actionbutton checkbutton">
                     <span class="icon-unchecked"></span>
                 </button>
             </div>
@@ -85,6 +84,27 @@
 
     <div class="card-wrap">
         <div class="card-edge card-edge--lvl2">
+            <span class="card-edge__middle-edge"></span>
+        </div>
+        <div class="card card--lvl2 card--done">
+            <div class="card__task">This is a big big task meant to break the css</div>
+            <div class="card__buttons">
+                <button class="actionbutton">
+                    <span class="icon-menu"></span>
+                </button>
+                <button class="actionbutton">
+                    <span class="icon-delete"></span>
+                </button>
+                <button class="actionbutton checkbutton--done">
+                    <span class="icon-unchecked"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-wrap">
+        <div class="card-edge card-edge--lvl2">
+            <span class="card-edge__last-edge"></span>
         </div>
         <div class="card card--lvl2">
             <div class="card__task">This is a big big task meant to break the css</div>
@@ -95,7 +115,24 @@
                 <button class="actionbutton">
                     <span class="icon-delete"></span>
                 </button>
+                <button class="actionbutton checkbutton">
+                    <span class="icon-unchecked"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-wrap">
+        <div class="card">
+            <div class="card__task">This is a big big task meant to break the css</div>
+            <div class="card__buttons">
                 <button class="actionbutton">
+                    <span class="icon-menu"></span>
+                </button>
+                <button class="actionbutton">
+                    <span class="icon-delete"></span>
+                </button>
+                <button class="actionbutton checkbutton">
                     <span class="icon-unchecked"></span>
                 </button>
             </div>
@@ -107,11 +144,18 @@
 
 </div>
 
+<div class="backdrop">
+    <div class="modal">
+        <div class="modal__question">
+            Are you sure you want to delete this task?
+        </div>
+        <div class="modal__buttons">
+            <button class="btn btn--danger">Fuck yeah!</button>
+            <button class="btn btn--danger-secondary">Cancel</button>
+        </div>
+    </div>
+</div>
 
-
-<span class="checkbutton">
-    check
-</span>
 
 <input type="text" class="task in">
 
@@ -119,11 +163,9 @@
 
 
 
-<div class="notification --points">+2</div>
-<div class="notification --msg">Way to go!</div>
+<div class="notif notif--points">+2</div>
+<div class="notif notif--msg">Way to go! <span class="notif__emo"><img src="img/emo-vsign.png" alt="Emoji"></span></div>
 
-<button class="btn --danger"></button>
-<button class="btn --dangersecondary"></button>
 
 <!-- atoms end -->
 

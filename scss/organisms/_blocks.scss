@@ -4,7 +4,8 @@
 // @notes
 // [1] Only use it if the task has subtasks (otherwise it makes no sense to add
 //     the tree-like structure)
-// [2] To visually ballance the extra padding of the button
+// [2] The extra -1 was added to fix mini-gaps that appeared
+// [3] To visually ballance the extra padding of the button
 .card {
     display: flex;
     align-items: center;
@@ -17,19 +18,12 @@
     position: relative;
     box-shadow: $s-lvl1;
     flex-grow: 1;
-    &--lvl1 { // [1]
-        &::after {
-            @include pseudo($w:2px, $h:16px, $bg:$c-border);
-            left: 24-1px;
-            bottom: -16px;
-        }
-    }
     &__task {
-        margin-right: 136+24px;
+        margin-right: 136+16px;
     }
     &__buttons {
         @include center-absolute($y: true);
-        right: 16-10px; // [2]
+        right: 16-10px; // [3]
         .actionbutton {
             @include center-flex();
             display: inline-block;
@@ -46,23 +40,59 @@
         height: 2px;
         width: 100%;
         background: $c-bg;
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
         .progress {
             height: 2px;
             border-radius: 0;
+            border-bottom-left-radius: 4px;
         }
+    }
+    &--lvl1 { // [1]
+        &::after {
+            @include pseudo($w:2px, $h:16px, $bg:$c-border);
+            left: 16-1-1px; // [2]
+            bottom: -16-1px; // [2]
+        }
+    }
+    &--done {
+        background: $c-bg;
+        color: $c-border;
+        text-decoration: line-through;
     }
 }
 
-// meant as a placeholder for the tree structure (in case the card isn't at 
-// root level)
+// .card-edge
+// ¨¨¨¨¨¨¨¨¨¨
+// A placeholder for the edges in the tree structure created for sub-tasks 
 .card-edge {
     position: relative;
     margin-bottom: 16px;
-    &--lvl2 {
-        width: 48px;
-        flex-basis: 48px;
+    %edge {
+        background: $c-border;
+        width: 2px;
+        margin: 0 16-1px;
+        display: flex;
+    }
+    &__middle-edge {
+        @extend %edge;
+        height: 100%;
+        position: relative;
         &::after {
-            @include pseudo($w:24px, $h:2px, $bg:$c-border);
+            @include pseudo($w:2px, $h:16px, $bg:$c-border);
+            left: 0;
+            bottom: -16px;
+        }
+    }
+    &__last-edge {
+        @extend %edge;
+        height: 50%;
+    }
+    &--lvl2 {
+        width: 2*16px;
+        flex-basis: 2*16px;
+        &::after {
+            @include pseudo($w:16+1px, $h:2px, $bg:$c-border);
             top: 50%;
             transform: translateY(-50%);
             right: 0;
@@ -70,3 +100,26 @@
     }
 }
 
+.modal {
+    @include center-absolute($x:true,$y:true);
+    border-radius: 4px;
+    background: #fff;
+    box-shadow: $s-lvl3;
+    padding: 24px;
+    text-align: center;
+    max-width: 500px;
+    &__question {
+        margin-bottom: 24px;
+        font-size: 1.2rem;
+        line-height: 1.25;
+    }
+    &__buttons {
+        display: flex;
+        margin: auto;
+        flex-direction: row-reverse;
+        justify-content: center;
+        > button:not(:last-child) {
+            margin-left: 16px;
+        }
+    }
+}

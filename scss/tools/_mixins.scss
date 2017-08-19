@@ -54,3 +54,14 @@
 		position: absolute;
 	}
 }
+
+// Boxie
+// ¨¨¨¨¨
+// @users
+//     .btn
+//     .notification
+@mixin boxie($h: 40px, $fz: $f-base-size) {
+    padding: (($h - $fz)/2) $fz;
+    height: $h;
+    border-radius: 4px; 
+}

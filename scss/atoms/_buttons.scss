@@ -1,3 +1,28 @@
+.btn {
+    @include boxie();
+    cursor: pointer;
+    white-space: nowrap;
+    &--danger {
+        background: $g-accent;
+        color: #fff;
+        font-weight: bold;
+        &:hover {
+            transform: $t-regular;
+            background: $g-accenthover;
+        }
+    }
+    &--danger-secondary {
+        border: 2px solid $c-accent;
+        color: $c-accent;
+        font-weight: bold;
+        &:hover {
+            transform: $t-regular;
+            border: 2px solid darken($c-accent,5);
+            color: darken($c-accent,5);
+        }
+    }
+}
+
 .showmore {
     @include center-absolute($x: true);
     position: absolute;
@@ -28,5 +53,19 @@
     }
     > span {
         display: block;
+    }
+}
+
+.checkbutton {
+    &:hover {
+        background: $g-progress;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    &--done {
+        &:hover {
+            background: transparent;
+            color: $c-text;
+        }
     }
 }
