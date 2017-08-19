@@ -191,20 +191,34 @@ img {
   background: transparent;
   color: #333; }
 
-.progress-bar {
-  background: #e6e6e6;
-  height: 8px; }
+.bar {
+  background: #e6e6e6; }
+  .bar--status {
+    justify-self: flex-end;
+    flex-grow: 1;
+    border-radius: 4px; }
+  .bar--card {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 100%;
+    background: #f9f9f9;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px; }
+    .bar--card .progress {
+      height: 2px;
+      border-radius: 0;
+      border-bottom-left-radius: 4px; }
 
 .progress {
   width: 50%;
   height: 8px;
   border-radius: 4px; }
-
-.progress.--accent {
-  background: linear-gradient(to right, #fa7d96, #fec2a0); }
-
-.progress.--progress {
-  background: linear-gradient(to right, #0be4a7, #89e358); }
+  .progress--accent {
+    background: linear-gradient(to right, #fa7d96, #fec2a0); }
+  .progress--progress {
+    background: linear-gradient(to right, #0be4a7, #89e358); }
 
 .circularimage {
   border-radius: 100%;
@@ -230,7 +244,9 @@ img {
   .notif--points {
     top: 64px;
     background: linear-gradient(to right, #0be4a7, #89e358);
-    min-width: 64px; }
+    min-width: 64px;
+    font-size: 1.25rem;
+    padding-top: 20px; }
   .notif--msg {
     top: 128px;
     background: #333; }
@@ -241,7 +257,7 @@ img {
   align-items: center;
   width: 90%;
   max-width: 900px; }
-  .status > *[class^="icon-"] {
+  .status__icon {
     flex-basis: 32px; }
   .status > .icon-heart {
     background: linear-gradient(to right, #fa7d96, #fec2a0);
@@ -254,11 +270,6 @@ img {
     -webkit-text-fill-color: transparent;
     position: relative;
     top: -2px; }
-
-.progress-bar--status {
-  justify-self: flex-end;
-  flex-grow: 1;
-  border-radius: 4px; }
 
 .user-info__name {
   padding: 6px 8px;
@@ -329,19 +340,6 @@ header {
       margin-left: 4px; }
     .card__buttons .actionbutton:first-child {
       margin-left: 0; }
-  .card__progress {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    height: 2px;
-    width: 100%;
-    background: #f9f9f9;
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px; }
-    .card__progress .progress {
-      height: 2px;
-      border-radius: 0;
-      border-bottom-left-radius: 4px; }
   .card--lvl1::after {
     position: absolute;
     content: "";

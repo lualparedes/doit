@@ -1,28 +1,24 @@
+// @notes
+// [1] I chose using this instead of a modifier to avoid bloating the markup
 .status {
     display: flex;
     align-items: center;
     width: 90%;
     max-width: 900px; 
-    > *[class^="icon-"] {
+    &__icon {
         flex-basis: 32px;
     }
-    > .icon-heart {
+    > .icon-heart { // [1]
         background: $g-accent;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-size: .75rem;
     }
-    > .icon-star {
+    > .icon-star { // [1]
         background: $g-progress;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         position: relative;
         top: -2px;
     }
-}
-
-.progress-bar--status {
-    justify-self: flex-end;
-    flex-grow: 1;
-    border-radius: 4px;
 }

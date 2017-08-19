@@ -1,3 +1,5 @@
+// @notes
+// [1] To center vertically
 .notif {
     @include boxie($h: 48px);
     @include center-flex();
@@ -16,9 +18,11 @@
         top: 64px;
         background: $g-progress;
         min-width: 64px;
+        font-size: 1.25rem;
+        padding-top: 20px; // [1]
     }
     &--msg {
         top: 128px;
-        background: $c-bgdark;
+        background: $c-text;
     }
 }
