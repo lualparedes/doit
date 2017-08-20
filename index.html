@@ -64,6 +64,7 @@
     
     <div class="card-wrap">
         <div class="card card--lvl1">
+
             <div class="card__task">This is a big big task meant to break the css</div>
             <div class="card__buttons">
                 <button class="actionbutton">
@@ -79,6 +80,28 @@
             <div class="bar--card">
                 <div class="progress progress--progress"></div>
             </div>
+
+            <div class="details">
+                <div class="detail">
+                    <div class="detail__key">Added</div>
+                    <div class="detail__value">2017/08/19</div>
+                </div>
+                <div class="detail">
+                    <div class="detail__key">Due</div>
+                    <div class="detail__value">
+                        <select>
+                            <option class="js-year0" selected>2017</option>
+                        </select>
+                        <select>
+                            <option class="js-month0">08</option>
+                            <option class="js-month1" selected>09</option>
+                            <option class="js-month2">10</option>
+                        </select>
+                        <input type="text" value="01">
+                    </div>
+                </div>
+            </div>
+
         </div>        
     </div>
 
@@ -119,6 +142,7 @@
                     <span class="icon-unchecked"></span>
                 </button>
             </div>
+
         </div>
     </div>
 
@@ -144,7 +168,7 @@
 
 </div>
 
-<div class="backdrop">
+<div class="backdrop hidefornow">
     <div class="modal">
         <div class="modal__question">
             Are you sure you want to delete this task?
@@ -157,18 +181,8 @@
 </div>
 
 
-<input type="text" class="task in">
-
-<input type="text" class="numericchange">
-
-
-
-<div class="notif notif--points"><span class="js-notifPoints">+2</span></div>
-<div class="notif notif--msg">Way to go! <span class="notif__emo"><img src="img/emo-vsign.png" alt="Emoji"></span></div>
-
-
-<!-- atoms end -->
-
+<div class="notif notif--points hidefornow"><span class="js-notifPoints">+2</span></div>
+<div class="notif notif--msg hidefornow">Way to go! <span class="notif__emo"><img src="img/emo-vsign.png" alt="Emoji"></span></div>
 
 
 
