@@ -64,40 +64,40 @@
     
     <div class="card-wrap">
         <div class="card card--lvl1">
-
-            <div class="card__task">This is a big big task meant to break the css</div>
-            <div class="card__buttons">
-                <button class="actionbutton">
-                    <span class="icon-menu"></span>
-                </button>
-                <button class="actionbutton">
-                    <span class="icon-delete"></span>
-                </button>
-                <button class="actionbutton checkbutton">
-                    <span class="icon-unchecked"></span>
-                </button>
+            <div class="task">
+                <div class="task__name">This is a big big task meant to break the css</div>
+                <div class="task__buttons">
+                    <button class="actionbutton">
+                        <span class="icon-menu"></span>
+                    </button>
+                    <button class="actionbutton">
+                        <span class="icon-delete"></span>
+                    </button>
+                    <button class="actionbutton checkbutton">
+                        <span class="icon-unchecked"></span>
+                    </button>
+                </div>
+                <div class="bar--task">
+                    <div class="progress progress--progress"></div>
+                </div>
             </div>
-            <div class="bar--card">
-                <div class="progress progress--progress"></div>
-            </div>
-
             <div class="details">
                 <div class="detail">
                     <div class="detail__key">Added</div>
-                    <div class="detail__value">2017/08/19</div>
+                    <div class="detail__value"><span class="_align-date">2017</span>/&nbsp;<span class="_align-date">08</span> /&nbsp;19</div>
                 </div>
                 <div class="detail">
                     <div class="detail__key">Due</div>
-                    <div class="detail__value">
-                        <select>
+                    <div class="detail__value detail__value--mutable">
+                        <select class="year">
                             <option class="js-year0" selected>2017</option>
-                        </select>
-                        <select>
+                        </select>/
+                        <select class="month">
                             <option class="js-month0">08</option>
                             <option class="js-month1" selected>09</option>
                             <option class="js-month2">10</option>
-                        </select>
-                        <input type="text" value="01">
+                        </select>/
+                        <input type="text" value="01" class="day">
                     </div>
                 </div>
             </div>
@@ -110,17 +110,39 @@
             <span class="card-edge__middle-edge"></span>
         </div>
         <div class="card card--lvl2 card--done">
-            <div class="card__task">This is a big big task meant to break the css</div>
-            <div class="card__buttons">
-                <button class="actionbutton">
-                    <span class="icon-menu"></span>
-                </button>
-                <button class="actionbutton">
-                    <span class="icon-delete"></span>
-                </button>
-                <button class="actionbutton checkbutton--done">
-                    <span class="icon-unchecked"></span>
-                </button>
+            <div class="task">
+                <div class="task__name">This is a big big task meant to break the css</div>
+                <div class="task__buttons">
+                    <button class="actionbutton">
+                        <span class="icon-menu"></span>
+                    </button>
+                    <button class="actionbutton">
+                        <span class="icon-delete"></span>
+                    </button>
+                    <button class="actionbutton checkbutton--done">
+                        <span class="icon-unchecked"></span>
+                    </button>
+                </div>
+            </div>
+            <div class="details">
+                <div class="detail">
+                    <div class="detail__key">Added</div>
+                    <div class="detail__value"><span class="_align-date">2017</span>/&nbsp;<span class="_align-date">08</span> /&nbsp;19</div>
+                </div>
+                <div class="detail">
+                    <div class="detail__key">Due</div>
+                    <div class="detail__value detail__value--mutable">
+                        <select class="year">
+                            <option class="js-year0" selected>2017</option>
+                        </select>/
+                        <select class="month">
+                            <option class="js-month0">08</option>
+                            <option class="js-month1" selected>09</option>
+                            <option class="js-month2">10</option>
+                        </select>/
+                        <input type="text" value="01" class="day">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -130,38 +152,81 @@
             <span class="card-edge__last-edge"></span>
         </div>
         <div class="card card--lvl2">
-            <div class="card__task">This is a big big task meant to break the css</div>
-            <div class="card__buttons">
-                <button class="actionbutton">
-                    <span class="icon-menu"></span>
-                </button>
-                <button class="actionbutton">
-                    <span class="icon-delete"></span>
-                </button>
-                <button class="actionbutton checkbutton">
-                    <span class="icon-unchecked"></span>
-                </button>
+            <div class="task">
+                <div class="task__name">This is a big big task meant to break the css</div>
+                <div class="task__buttons">
+                    <button class="actionbutton">
+                        <span class="icon-menu"></span>
+                    </button>
+                    <button class="actionbutton">
+                        <span class="icon-delete"></span>
+                    </button>
+                    <button class="actionbutton checkbutton">
+                        <span class="icon-unchecked"></span>
+                    </button>
+                </div>
             </div>
-
+            <div class="details">
+                <div class="detail">
+                    <div class="detail__key">Added</div>
+                    <div class="detail__value"><span class="_align-date">2017</span>/&nbsp;<span class="_align-date">08</span> /&nbsp;19</div>
+                </div>
+                <div class="detail">
+                    <div class="detail__key">Due</div>
+                    <div class="detail__value detail__value--mutable">
+                        <select class="year">
+                            <option class="js-year0" selected>2017</option>
+                        </select>/
+                        <select class="month">
+                            <option class="js-month0">08</option>
+                            <option class="js-month1" selected>09</option>
+                            <option class="js-month2">10</option>
+                        </select>/
+                        <input type="text" value="01" class="day">
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="card-wrap">
         <div class="card">
-            <div class="card__task">This is a big big task meant to break the css</div>
-            <div class="card__buttons">
-                <button class="actionbutton">
-                    <span class="icon-menu"></span>
-                </button>
-                <button class="actionbutton">
-                    <span class="icon-delete"></span>
-                </button>
-                <button class="actionbutton checkbutton">
-                    <span class="icon-unchecked"></span>
-                </button>
+            <div class="task">
+                <div class="task__name">This is a big big task meant to break the css</div>
+                <div class="task__buttons">
+                    <button class="actionbutton">
+                        <span class="icon-menu"></span>
+                    </button>
+                    <button class="actionbutton">
+                        <span class="icon-delete"></span>
+                    </button>
+                    <button class="actionbutton checkbutton">
+                        <span class="icon-unchecked"></span>
+                    </button>
+                </div>
+                <div class="bar--task">
+                    <div class="progress progress--progress"></div>
+                </div>
             </div>
-            <div class="bar--card">
-                <div class="progress progress--progress"></div>
+            <div class="details">
+                <div class="detail">
+                    <div class="detail__key">Added</div>
+                    <div class="detail__value"><span class="_align-date">2017</span>/&nbsp;<span class="_align-date">08</span> /&nbsp;19</div>
+                </div>
+                <div class="detail">
+                    <div class="detail__key">Due</div>
+                    <div class="detail__value detail__value--mutable">
+                        <select class="year">
+                            <option class="js-year0" selected>2017</option>
+                        </select>/
+                        <select class="month">
+                            <option class="js-month0">08</option>
+                            <option class="js-month1" selected>09</option>
+                            <option class="js-month2">10</option>
+                        </select>/
+                        <input type="text" value="01" class="day">
+                    </div>
+                </div>
             </div>
         </div>        
     </div>

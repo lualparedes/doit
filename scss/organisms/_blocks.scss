@@ -1,38 +1,20 @@
 // Card
 // ¨¨¨¨
-// Basic element to display tasks
+// Basic element to display tasks (including the hidden details)
 // @notes
 // [1] Only use it if the task has subtasks (otherwise it makes no sense to add
 //     the tree-like structure)
 // [2] The extra -1 was added to fix mini-gaps that appeared
-// [3] To visually ballance the extra padding of the button
+// [3] For the sake of practicity (instead of using task--done)
 .card {
-    display: flex;
-    align-items: center;
     background: #fff;
     border: 1px solid $c-border;
     border-radius: 4px;
     margin-bottom: 16px;
     min-height: 50px;
-    padding: 1rem;
     position: relative;
     box-shadow: $s-lvl1;
     flex-grow: 1;
-    &__task {
-        margin-right: 136+16px;
-    }
-    &__buttons {
-        @include center-absolute($y: true);
-        right: 16-10px; // [3]
-        .actionbutton {
-            @include center-flex();
-            display: inline-block;
-            margin-left: 4px;
-        }
-        .actionbutton:first-child {
-            margin-left: 0;
-        }
-    }
     &--lvl1 { // [1]
         &::after {
             @include pseudo($w:2px, $h:16px, $bg:$c-border);
@@ -43,7 +25,37 @@
     &--done {
         background: $c-bg;
         color: $c-border;
-        text-decoration: line-through;
+        .task { // [3]
+            text-decoration: line-through;
+        }
+    }
+}
+
+
+// Task
+// ¨¨¨¨
+// Container for the visible part of a task card
+// @notes
+// [1] To visually ballance the extra padding of the button
+.task {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    position: relative;
+    &__name {
+        margin-right: 136+16px;
+    }
+    &__buttons {
+        @include center-absolute($y: true);
+        right: 16-10px; // [1]
+        .actionbutton {
+            @include center-flex();
+            display: inline-block;
+            margin-left: 4px;
+        }
+        .actionbutton:first-child {
+            margin-left: 0;
+        }
     }
 }
 

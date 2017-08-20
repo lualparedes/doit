@@ -79,8 +79,15 @@ img {
   height: 100vh;
   background: rgba(0, 0, 0, 0.5); }
 
-.in {
-  width: 100%; }
+.day {
+  width: 2rem;
+  text-align: center; }
+
+select {
+  background: transparent; }
+
+._align-date {
+  margin-right: 17px; }
 
 /* Atoms */
 @font-face {
@@ -200,7 +207,7 @@ img {
     justify-self: flex-end;
     flex-grow: 1;
     border-radius: 4px; }
-  .bar--card {
+  .bar--task {
     position: absolute;
     left: 0;
     bottom: 0;
@@ -209,7 +216,7 @@ img {
     background: #f9f9f9;
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px; }
-    .bar--card .progress {
+    .bar--task .progress {
       height: 2px;
       border-radius: 0;
       border-bottom-left-radius: 4px; }
@@ -274,6 +281,31 @@ img {
     position: relative;
     top: -2px; }
 
+.details {
+  display: none;
+  border-top: 1px solid #b3b3b3;
+  padding: 2rem 15%;
+  padding-bottom: 1rem;
+  text-decoration: none; }
+
+.detail {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  position: relative; }
+  .detail__key {
+    padding-right: 8px; }
+  .detail__value {
+    width: 140px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    display: flex;
+    justify-content: center;
+    text-align: center; }
+    .detail__value--mutable {
+      border-bottom: 1px solid #b3b3b3; }
+
 .user-info__name {
   padding: 6px 8px;
   font-size: 1.25rem;
@@ -317,32 +349,14 @@ header {
   padding: 24px 0; }
 
 .card {
-  display: flex;
-  align-items: center;
   background: #fff;
   border: 1px solid #b3b3b3;
   border-radius: 4px;
   margin-bottom: 16px;
   min-height: 50px;
-  padding: 1rem;
   position: relative;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
   flex-grow: 1; }
-  .card__task {
-    margin-right: 152px; }
-  .card__buttons {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    right: 6px; }
-    .card__buttons .actionbutton {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      display: inline-block;
-      margin-left: 4px; }
-    .card__buttons .actionbutton:first-child {
-      margin-left: 0; }
   .card--lvl1::after {
     position: absolute;
     content: "";
@@ -353,8 +367,30 @@ header {
     bottom: -17px; }
   .card--done {
     background: #f9f9f9;
-    color: #b3b3b3;
-    text-decoration: line-through; }
+    color: #b3b3b3; }
+    .card--done .task {
+      text-decoration: line-through; }
+
+.task {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  position: relative; }
+  .task__name {
+    margin-right: 152px; }
+  .task__buttons {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 6px; }
+    .task__buttons .actionbutton {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      display: inline-block;
+      margin-left: 4px; }
+    .task__buttons .actionbutton:first-child {
+      margin-left: 0; }
 
 .card-edge {
   position: relative;
