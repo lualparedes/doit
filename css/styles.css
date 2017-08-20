@@ -27,7 +27,6 @@ html {
   line-height: 1; }
 
 body {
-  min-height: 100vh;
   background: #f9f9f9; }
 
 table {
@@ -63,7 +62,7 @@ img {
 
 .wrap {
   margin: 254px auto 0 auto;
-  padding-top: 24px;
+  padding: 24px 0;
   width: 90%;
   max-width: 900px; }
 
@@ -79,9 +78,17 @@ img {
   height: 100vh;
   background: rgba(0, 0, 0, 0.5); }
 
+.in {
+  border-bottom: 1px solid #b3b3b3;
+  width: 100%;
+  padding: .25rem;
+  padding-bottom: 0;
+  background: transparent; }
+
 .day {
   width: 2rem;
-  text-align: center; }
+  text-align: center;
+  background: transparent; }
 
 select {
   background: transparent; }
@@ -179,7 +186,7 @@ select {
   .showmore:hover {
     background: #f9f9f9; }
 
-.actionbutton {
+.actionbtn {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -187,11 +194,17 @@ select {
   width: 36px;
   height: 36px;
   border-radius: 4px; }
-  .actionbutton:hover {
+  .actionbtn:hover {
     background: #e6e6e6;
     color: #333; }
-  .actionbutton > span {
+  .actionbtn > span {
     display: block; }
+  .actionbtn--add {
+    background: linear-gradient(to right, #0be4a7, #89e358);
+    color: #fff; }
+    .actionbtn--add:hover {
+      background: linear-gradient(to right, #0acc95, #7adf42);
+      color: #fff; }
 
 .checkbutton:hover {
   background: linear-gradient(to right, #0be4a7, #89e358);
@@ -281,6 +294,38 @@ select {
     position: relative;
     top: -2px; }
 
+.task {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  position: relative; }
+  .task__name {
+    margin-right: 136px; }
+    .task__name--add {
+      margin: auto;
+      text-align: center;
+      position: relative;
+      bottom: 2px; }
+      .task__name--add.is-active {
+        width: 100%;
+        margin-right: 92px; }
+  .task__buttons {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 6px; }
+    .task__buttons .actionbtn {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      display: inline-block;
+      margin-left: 4px; }
+    .task__buttons .actionbtn:first-child {
+      margin-left: 0; }
+  .task--add {
+    height: 48px;
+    cursor: pointer; }
+
 .details {
   display: none;
   border-top: 1px solid #b3b3b3;
@@ -305,6 +350,40 @@ select {
     text-align: center; }
     .detail__value--mutable {
       border-bottom: 1px solid #b3b3b3; }
+
+.card-edge {
+  position: relative;
+  margin-bottom: 16px; }
+  .card-edge .card-edge__middle-edge, .card-edge .card-edge__last-edge {
+    background: #b3b3b3;
+    width: 2px;
+    margin: 0 15px;
+    display: flex; }
+  .card-edge__middle-edge {
+    height: 100%;
+    position: relative; }
+    .card-edge__middle-edge::after {
+      position: absolute;
+      content: "";
+      background: #b3b3b3;
+      width: 2px;
+      height: 16px;
+      left: 0;
+      bottom: -16px; }
+  .card-edge__last-edge {
+    height: 50%; }
+  .card-edge--lvl2 {
+    width: 32px;
+    flex-basis: 32px; }
+    .card-edge--lvl2::after {
+      position: absolute;
+      content: "";
+      background: #b3b3b3;
+      width: 17px;
+      height: 2px;
+      top: 50%;
+      transform: translateY(-50%);
+      right: 0; }
 
 .user-info__name {
   padding: 6px 8px;
@@ -370,61 +449,17 @@ header {
     color: #b3b3b3; }
     .card--done .task {
       text-decoration: line-through; }
-
-.task {
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-  position: relative; }
-  .task__name {
-    margin-right: 152px; }
-  .task__buttons {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    right: 6px; }
-    .task__buttons .actionbutton {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      display: inline-block;
-      margin-left: 4px; }
-    .task__buttons .actionbutton:first-child {
-      margin-left: 0; }
-
-.card-edge {
-  position: relative;
-  margin-bottom: 16px; }
-  .card-edge .card-edge__middle-edge, .card-edge .card-edge__last-edge {
-    background: #b3b3b3;
-    width: 2px;
-    margin: 0 15px;
-    display: flex; }
-  .card-edge__middle-edge {
-    height: 100%;
-    position: relative; }
-    .card-edge__middle-edge::after {
-      position: absolute;
-      content: "";
-      background: #b3b3b3;
-      width: 2px;
-      height: 16px;
-      left: 0;
-      bottom: -16px; }
-  .card-edge__last-edge {
-    height: 50%; }
-  .card-edge--lvl2 {
-    width: 32px;
-    flex-basis: 32px; }
-    .card-edge--lvl2::after {
-      position: absolute;
-      content: "";
-      background: #b3b3b3;
-      width: 17px;
-      height: 2px;
-      top: 50%;
-      transform: translateY(-50%);
-      right: 0; }
+  .card--add {
+    box-shadow: none;
+    background: #f9f9f9;
+    border: 1px dashed #333; }
+    .card--add:hover, .card--add:focus {
+      border: 1px solid #b3b3b3;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2); }
+    .card--add.is-active {
+      background: #fff;
+      border: 1px solid #b3b3b3;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2); }
 
 .modal {
   position: absolute;

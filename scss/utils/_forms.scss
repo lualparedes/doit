@@ -1,7 +1,16 @@
+.in {
+    border-bottom: 1px solid $c-border;
+    width: 100%;
+    padding: .25rem;
+    padding-bottom: 0;
+    background: transparent;
+}
+
 // Text input for days
 .day {
     width: 2rem;
     text-align: center;
+    background: transparent;
 }
 
 select {

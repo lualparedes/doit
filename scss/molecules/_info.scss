@@ -1,3 +1,51 @@
+// Task
+// ¨¨¨¨
+// Container for the visible part of a task card
+// @notes
+// [1] To visually balance the extra padding of the button
+// [2] Buttons + blank space right of the buttons +  same blank space to the 
+//     left because the leftmost button already has some whitespace
+// [3] Adjusting vertical proportions to match the regular cards
+// [4] Logic similar as in [2]
+.task {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    position: relative;
+    &__name {
+        margin-right: 124+6+6px; // [2]
+        &--add {
+            margin: auto;
+            text-align: center;
+            position: relative; // [3]
+            bottom: 2px; // [3]
+            &.is-active {
+                width: 100%;
+                margin-right: 80+6+6px; // [4]
+            }
+        }
+    }
+    &__buttons {
+        @include center-absolute($y: true);
+        right: 16-10px; // [1]
+        .actionbtn {
+            @include center-flex();
+            display: inline-block;
+            margin-left: 4px;
+        }
+        .actionbtn:first-child {
+            margin-left: 0;
+        }
+    }
+    &--add {
+        height: 48px; // [3]
+        cursor: pointer;
+    }
+}
+
+// Details
+// ¨¨¨¨¨¨¨
+// Hidden information about a task in a card
 .details {
     display: none;
     border-top: 1px solid $c-border;
@@ -5,7 +53,6 @@
     padding-bottom: 1rem;
     text-decoration: none;
 }
-
 .detail {
     display: flex;
     align-items: center;
@@ -24,6 +71,44 @@
         text-align: center;
         &--mutable {
             border-bottom: 1px solid $c-border;
+        }
+    }
+}
+
+// Card edge
+// ¨¨¨¨¨¨¨¨¨
+// A placeholder for the edges in the tree structure created for sub-tasks 
+.card-edge {
+    position: relative;
+    margin-bottom: 16px;
+    %edge {
+        background: $c-border;
+        width: 2px;
+        margin: 0 16-1px;
+        display: flex;
+    }
+    &__middle-edge {
+        @extend %edge;
+        height: 100%;
+        position: relative;
+        &::after {
+            @include pseudo($w:2px, $h:16px, $bg:$c-border);
+            left: 0;
+            bottom: -16px;
+        }
+    }
+    &__last-edge {
+        @extend %edge;
+        height: 50%;
+    }
+    &--lvl2 {
+        width: 2*16px;
+        flex-basis: 2*16px;
+        &::after {
+            @include pseudo($w:16+1px, $h:2px, $bg:$c-border);
+            top: 50%;
+            transform: translateY(-50%);
+            right: 0;
         }
     }
 }

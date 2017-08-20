@@ -29,70 +29,19 @@
             text-decoration: line-through;
         }
     }
-}
-
-
-// Task
-// ¨¨¨¨
-// Container for the visible part of a task card
-// @notes
-// [1] To visually ballance the extra padding of the button
-.task {
-    display: flex;
-    align-items: center;
-    padding: 1rem;
-    position: relative;
-    &__name {
-        margin-right: 136+16px;
-    }
-    &__buttons {
-        @include center-absolute($y: true);
-        right: 16-10px; // [1]
-        .actionbutton {
-            @include center-flex();
-            display: inline-block;
-            margin-left: 4px;
+    &--add {
+        box-shadow: none;
+        background: $c-bg;
+        border: 1px dashed $c-text;
+        &:hover,
+        &:focus {
+            border: 1px solid $c-border;
+            box-shadow: $s-lvl1;
         }
-        .actionbutton:first-child {
-            margin-left: 0;
-        }
-    }
-}
-
-// Card edge
-// ¨¨¨¨¨¨¨¨¨
-// A placeholder for the edges in the tree structure created for sub-tasks 
-.card-edge {
-    position: relative;
-    margin-bottom: 16px;
-    %edge {
-        background: $c-border;
-        width: 2px;
-        margin: 0 16-1px;
-        display: flex;
-    }
-    &__middle-edge {
-        @extend %edge;
-        height: 100%;
-        position: relative;
-        &::after {
-            @include pseudo($w:2px, $h:16px, $bg:$c-border);
-            left: 0;
-            bottom: -16px;
-        }
-    }
-    &__last-edge {
-        @extend %edge;
-        height: 50%;
-    }
-    &--lvl2 {
-        width: 2*16px;
-        flex-basis: 2*16px;
-        &::after {
-            @include pseudo($w:16+1px, $h:2px, $bg:$c-border);
-            top: 50%;
-            transform: translateY(-50%);
-            right: 0;
+        &.is-active {
+            background: #fff;
+            border: 1px solid $c-border;
+            box-shadow: $s-lvl1;
         }
     }
 }

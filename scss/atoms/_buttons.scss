@@ -41,7 +41,7 @@
     }
 }
 
-.actionbutton {
+.actionbtn {
     @include center-flex();
     color: $c-border;
     width: 36px;
@@ -53,6 +53,14 @@
     }
     > span {
         display: block;
+    }
+    &--add {
+        background: $g-progress;
+        color: #fff;
+        &:hover {
+            background: $g-progresshover;
+            color: #fff;
+        }
     }
 }
 
