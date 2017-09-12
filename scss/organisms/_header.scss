@@ -10,8 +10,11 @@ header {
 
 .header-user {
     @include center-flex();
+    display: none;
+    overflow: hidden;
     border-bottom: 1px solid $c-border;
-    padding: 24px;
+    height: 120px;
+    padding: 0 24px;
     &__avatar {
         width: 8*10px;
         margin-right: 24px;

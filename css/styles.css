@@ -61,7 +61,7 @@ img {
   display: none !important; }
 
 .wrap {
-  margin: 254px auto 0 auto;
+  margin: 250px auto 0 auto;
   padding: 24px 0;
   width: 90%;
   max-width: 900px; }
@@ -297,7 +297,6 @@ select {
     top: -2px; }
 
 .task {
-  background: red;
   display: flex;
   align-items: center;
   padding: 1rem;
@@ -416,8 +415,11 @@ header {
   display: flex;
   justify-content: center;
   align-items: center;
+  display: none;
+  overflow: hidden;
   border-bottom: 1px solid #b3b3b3;
-  padding: 24px; }
+  height: 120px;
+  padding: 0 24px; }
   .header-user__avatar {
     width: 80px;
     margin-right: 24px; }
