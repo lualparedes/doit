@@ -14,7 +14,7 @@
 
 <header>
 
-    <div class="header-user is-hidden">
+    <div class="header-user">
         <div class="header-user__avatar circularimage">
             <img src="img/avatar.png" alt="avatar">
         </div>
@@ -62,6 +62,7 @@
 
 <div class="wrap">
     
+    <!--
     <div class="card-wrap">
         <div class="card card--lvl1">
             <div class="task">
@@ -230,13 +231,13 @@
             </div>
         </div>        
     </div>
-
+-->
     <div class="card-wrap">
         <div class="card card--add">
             <div class="task task--add">
                 <div class="task__name task__name--add"><span class="icon-add"> </span>Add new task...</div>
                 <div class="task__buttons">
-                    <button class="actionbtn">
+                    <button class="actionbtn js-showDetails">
                         <span class="icon-config"></span>
                     </button>
                 </div>
@@ -255,6 +256,8 @@
         </div>        
     </div>
 
+<!---
+    For future versions consider adding the due date 
     <div class="card-wrap">
         <div class="card card--add is-active">
             <div class="task task--add">
@@ -270,7 +273,7 @@
                     </button>
                 </div>
             </div>
-            <div class="details">
+            <div class="details" style="display: block">
                 <div class="detail">
                     <div class="detail__key">Level</div>
                     <div class="detail__value detail__value--mutable">
@@ -297,6 +300,7 @@
             </div>
         </div>        
     </div>
+-->
 
 
 </div>
