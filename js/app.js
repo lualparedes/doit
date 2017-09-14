@@ -39,6 +39,27 @@ var g = function (selector) {
 EventTarget.prototype.on = EventTarget.prototype.addEventListener;
 EventTarget.prototype.off = EventTarget.prototype.removeEventListener;
 
+// Polyfills
+// ¨¨¨¨¨¨¨¨¨
+// @author: MDN Element.closest Reference Page
+if (!Element.prototype.matches) {
+    Element.prototype.matches = Element.prototype.msMatchesSelector || 
+                                Element.prototype.webkitMatchesSelector;
+}
+if (!Element.prototype.closest) {
+    Element.prototype.closest = function(s) {
+        var el = this;
+        var ancestor = this;
+        if (!document.documentElement.contains(el)) return null;
+        do {
+            if (ancestor.matches(s)) return ancestor;
+            ancestor = ancestor.parentElement;
+        } while (ancestor !== null); 
+        return null;
+    };
+}
+
+
 // Style variables
 // ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
 // A copy of useful variables in the _variables.scss partial
@@ -138,6 +159,28 @@ function slideToggle(el, display, time) {
             el.style.display = "";
         }, duration*1000);
     }
+}
+
+// Fade in
+// ¨¨¨¨¨¨¨
+function fadeIn(el) {
+    el.style.opacity = 0;
+    el.style.display = "block";
+    el.style.transition = "all .5s ease";
+    
+    setTimeout(function(){
+        el.style.opacity = 1;
+    }, 100);
+}
+
+// Fade out
+// ¨¨¨¨¨¨¨¨
+function fadeOut(el) {
+    el.style.opacity = 0;
+    
+    setTimeout(function(){
+        el.style.display = "";
+    }, 500);
 }
 
 
@@ -314,7 +357,8 @@ function createTask(e) {
     if (g(".task__name--add .in").value !== "") {
         // create the object
         var newTask = {
-            id: new Date(),
+            id: Date.now(),
+            date: new Date(),
             name: g(".task__name--add .in").value,
             level: g(".card--add .levels").value,
             progress: 0,
@@ -333,7 +377,7 @@ function createTask(e) {
     
 
 //////////////////
-// Render tasks //
+// RENDER TASKS //
 //////////////////______________________________________________________________
 
 function updateDisplayedTasks() {
@@ -363,13 +407,13 @@ function createCard(task) {
                     <div class="task">\
                         <div class="task__name">{{ task.name }}</div>\
                         <div class="task__buttons">\
-                            <button class="actionbtn">\
+                            <button class="actionbtn js-showTaskDetails">\
                                 <span class="icon-menu"></span>\
                             </button>\
-                            <button class="actionbtn">\
+                            <button class="actionbtn js-deleteTask">\
                                 <span class="icon-delete"></span>\
                             </button>\
-                            <button class="actionbtn checkbutton">\
+                            <button class="actionbtn checkbutton js-doneTask">\
                                 <span class="icon-unchecked"></span>\
                             </button>\
                         </div>\
@@ -392,14 +436,14 @@ function createCard(task) {
                 <div class="card card--lvl2">\
                     <div class="task">\
                         <div class="task__name">{{ task.name }}</div>\
-                        <div class="task__buttons">\
+                        <div class="task__buttons js-showTaskDetails">\
                             <button class="actionbtn">\
                                 <span class="icon-menu"></span>\
                             </button>\
-                            <button class="actionbtn">\
+                            <button class="actionbtn js-deleteTask">\
                                 <span class="icon-delete"></span>\
                             </button>\
-                            <button class="actionbtn checkbutton">\
+                            <button class="actionbtn checkbutton js-doneTask">\
                                 <span class="icon-unchecked"></span>\
                             </button>\
                         </div>\
@@ -417,6 +461,7 @@ function createCard(task) {
     // create the element
     var newCard = document.createElement("div");
     newCard.setAttribute("class","card-wrap");
+    newCard.setAttribute("id", task.id);
     task.level === "Level 1" ?
         newCard.innerHTML = CARD_MARKUP.lvl1 :
         newCard.innerHTML = CARD_MARKUP.lvl2;
@@ -424,9 +469,9 @@ function createCard(task) {
     // populate the element
     newCard.innerHTML = newCard.innerHTML
                         .replace("{{ task.name }}", task.name)
-                        .replace("{{ task.date.year }}", task.id.getFullYear())
-                        .replace("{{ task.date.month }}", "0"+(task.id.getMonth()+1))
-                        .replace("{{ task.date.day }}", task.id.getDate());
+                        .replace("{{ task.date.year }}", task.date.getFullYear())
+                        .replace("{{ task.date.month }}", "0"+(task.date.getMonth()+1))
+                        .replace("{{ task.date.day }}", task.date.getDate());
     
     // insert the element
     g(".wrap").insertBefore(newCard, g(".js-addCardWrap"));
@@ -434,16 +479,8 @@ function createCard(task) {
     // update other elements in the app if needed
     // (REMEMBER: only main tasks ("Level 1") modify taskCount and taskWeight)
     if ( task.level === "Level 1" ) {
-        updateGlobalProgress(updateAppState());
+        updateGlobalProgress(updateAppState("createCard"));
     }
-}
-
-function updateAppState() {
-    appState.taskCount++;
-    appState.taskWeight = 1/appState.taskCount;
-    appState.globalProgress = appState.netLocalProgressSum*appState.taskWeight;
-    console.log(appState);
-    return appState;
 }
 
 function updateGlobalProgress(currentAppState) {
@@ -452,17 +489,144 @@ function updateGlobalProgress(currentAppState) {
 
 
 
+/////////////////////
+// TASK OPERATIONS //
+/////////////////////___________________________________________________________
+
 // Delete task
 // ¨¨¨¨¨¨¨¨¨¨¨
+g(".wrap").on("click", function(e){
 
-// Edit task
-// ¨¨¨¨¨¨¨¨¨
+    // js-deleteTask listener
+    // ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+    if ( e.target.classList.contains("js-deleteTask") ||
+         e.target.classList.contains("icon-delete") ) {
+        askConfirmation(
+            deleteTask,
+            e.target.closest(".card-wrap")
+        );
+    }
+
+});
+
+function askConfirmation(callback, callbackParams) {
+    openModal();
+    g(".modal").onclick = function(e){
+        // onclick was used instead of addEventListener() because it overwrites
+        // any listeners already attached to click. Using addEventListener()
+        // results in adding the same thing over and over again, which makes 
+        // callback() and closeModal() run several times instead of only once.
+        //
+        // On the other hand, this assignation is repeated every time 
+        // askConfirmation() is invoked, to allow its reutilization with a 
+        // different callback.
+        if ( e.target.classList.contains("js-ok") ) {
+            callback(callbackParams);
+            closeModal();
+        } else if ( e.target.classList.contains("js-cancel") ) {
+            closeModal();
+        }
+    };
+}
+
+function deleteTask(taskCard) {
+    
+    var thisTask = tasks.find( (item) => item.id.toString() === taskCard.id );
+
+    // delete task (in tasks array)
+    tasks.splice( tasks.indexOf( thisTask ), 1 );       
+    // delete task card 
+    taskCard.parentNode.removeChild(taskCard);
+
+    if ( thisTask.children.length !== 0 ) {
+        // delete children subtasks
+        console.log("holi", tasks);
+        // delete children subtasks' cards 
+    }
+
+    // update appState
+    updateAppState("deleteTask", { "thisTask": thisTask });
+    
+    // update the rest of the UI (according to appState)
+}
+
+function updateAppState(invocationContext, paramsObj) {
+    var aS = appState;
+    var pO = paramsObj;
+    switch (invocationContext) {
+
+        case "createCard":
+            aS.taskCount++;
+            aS.taskWeight = 1/aS.taskCount;
+            aS.globalProgress = aS.netLocalProgressSum*aS.taskWeight;
+            return appState;
+
+        case "deleteTask":
+            // console.log("before",aS);
+            if ( pO.thisTask.level === "Level 1") {
+                aS.taskCount--;
+                aS.taskWeight = aS.taskCount > 0 ? 1/aS.taskCount : 0;
+            }            
+            aS.netLocalProgressSum = 
+                pO.thisTask.progress !== 0 ? // check this condition when dealing with level 2
+                    aS.netLocalProgressSum - pO.thisTask.progress : 
+                    aS.netLocalProgressSum;
+            aS.globalProgress = aS.netLocalProgressSum*aS.taskWeight;
+            // console.log("after",aS);
+
+    }    
+}
+
+function openModal() {
+    // show the backdrop...
+    fadeIn(g(".backdrop"));
+    // ...and the modal itself
+    g(".modal").style.transition = "all .25s ease";
+    setTimeout(function(){
+        g(".modal").style.transform = "translate(-50%, -50%) scale(1,1)";
+    }, 100);
+}
+function closeModal() {
+    // close the modal itself...
+    g(".modal").style.transform = "";
+    // ...and the backdrop
+    setTimeout(function(){
+        fadeOut(g(".backdrop"));
+    }, 150);        
+}
+
+
+
+// Task details
+// ¨¨¨¨¨¨¨¨¨¨¨¨
 
 // every task completed must contain the date of completion
 // sub-tasks don't affect directly the global progress bar (they affect the
 // progress bar of the parent task)
 
-// Calculate progress
-// ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+// Mark as done (main)
+// ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+// points
+
+// Mark as done (subtask)
+// ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+// local progress
+// points
+
+
+
+///////////////
+///////////////
+///////////////_________________________________________________________________
+/*
+
+- How to stablish parent-children relationships in tasks
+- draganddrop
+- localStorage
+
+
+
+*/
+
 
 })()
