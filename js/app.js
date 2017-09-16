@@ -126,6 +126,8 @@ var appState = {
     globalProgress: 0 // [4]
 };
 
+// --
+
 
 
 (function(){
@@ -710,8 +712,20 @@ function updateAppState(invocationContext, paramsObj) {
                         aS.netLocalProgressSum - pO.thisTask.progress :
                         aS.netLocalProgressSum;
             }
-            if ( pO.thisTask.level === "Level 2" ) {
+            if ( pO.thisTask.level === "Level 2" && pO.thisTask.progress === 100 ) {
                 aS.netLocalProgressSum -= pO.thisTask.progress;
+
+            // the task was marked as done
+                // get its previous local weight
+                // substract 
+
+
+
+
+                // the task was still uncompleted
+                    // nothing needs to be done since the local state isn't 
+                    // held in any object (it is calculated on the fly out
+                    // of the regular data in tasks objects)
             }
 
             aS.globalProgress = aS.netLocalProgressSum*aS.taskWeight;
@@ -767,11 +781,9 @@ function closeModal() {
 ///////////////_________________________________________________________________
 /*
 
-- How to stablish parent-children relationships in tasks
 - draganddrop
 - localStorage
-
-
+- daily reset
 
 */
 
