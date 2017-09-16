@@ -138,6 +138,19 @@ var appState = {
 // UTILITIES //
 ///////////////_________________________________________________________________
 
+// Clone object
+// ¨¨¨¨¨¨¨¨¨¨¨¨
+// Create a copy (value not reference) of an existing object. Object.assign()
+// works similarly, but it passes inner objects by reference.
+function clone(object) {
+    if ( Object.entries(object).length > 100 ) {
+        console.warn(
+            "This method might not be optimal for the size of the object"
+        );
+    }
+    return JSON.parse(JSON.stringify(object));;
+}
+
 // Slide Toggle
 // ¨¨¨¨¨¨¨¨¨¨¨¨
 // Works similar to jQuery's
@@ -365,13 +378,19 @@ function createTask(e) {
             date: new Date(),
             name: g(".task__name--add .in").value,
             level: g(".card--add .levels").value,
-            progress: 0,
             parent: null,
-            children: []
+            children: [],
+            state: {
+                progress: 0
+            }
         }
-        if ( newTask.level === "Level 2" ) {            
+        if ( newTask.level === "Level 1" ) {
+            newTask.state.subtaskCount = 0;
+            newTask.state.subtaskWeight = 0;
+            newTask.state.subtasksDone = 0;
+        }
+        if ( newTask.level === "Level 2" ) { 
             makeParentageLinks(newTask); 
-            updateLocalProgress(newTask);
         }
         tasks.push(newTask);
         // display the new task
@@ -392,54 +411,96 @@ function makeParentageLinks(newTask) {
         var parentTaskId = mainCards[lastCardKey].parentNode.id;
         // assign the id as parent
         newTask.parent = parentTaskId;
-        // get parent task and update its children
-        tasks.find( (item) => item.id.toString() === parentTaskId )
-             .children.push(newTask.id);
+        // get parent task and update its children and its state
+        var parentTaskObj = tasks.find( 
+            (item) => item.id.toString() === parentTaskId 
+        );
+
+        parentTaskObj.children.push(newTask.id);
+
+        // ====================================================
+        // ⚠️⚠️⚠️ RE-TEST WHEN MARK AS DONE HAS BEEN ADDED ⚠️⚠️⚠️
+        // ====================================================
+        (function updateLocalState(){
+            // save a copy of the parent's state for future comparissons
+            var prevLocalState = clone(parentTaskObj.state);
+
+            // update the parent's state object
+            parentTaskObj.state.subtaskCount++
+            parentTaskObj.state.subtaskWeight = 100/parentTaskObj.state.subtaskCount;
+            parentTaskObj.state.progress = 
+                (parentTaskObj.state.subtasksDone / 
+                 parentTaskObj.state.subtaskCount) * 100;
+
+            (function updateLocalProgress(){
+                document
+                    .getElementById(newTask.parent).querySelector(".progress")
+                    .style.width =
+                        parentTaskObj.state.progress;
+            }());
+
+            var localStates = {
+                prevLocalProgress: prevLocalState.progress,
+                localProgress: parentTaskObj.state.progress
+            }
+            updateGlobalProgress(updateAppState("updateLocalState", localStates));
+
+        }());
+        
     }
 }
-// Update local progress
-// ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
-// Updates progress of parent task in both the bar in the card and the object
-// with the data of the parent task. This operation is only needed if there's 
-// any (local) progress already achieved.
-function updateLocalProgress(newTask) {
-    // make sure that the newTask has a parent
-    if ( newTask.parent !== null ) {
-        // get the parent
-        var newTaskParentObj = tasks.find( 
-            (item) => item.id.toString() === newTask.parent 
-        );
-        // update progress if needed
-        if ( newTaskParentObj.progress > 0 ) {
 
-            // ====================================================
-            // ⚠️⚠️⚠️ NEEDS TO BE TESTED (AS WELL AS ITS CASE) ⚠️⚠️⚠️
-            // ====================================================
+function updateAppState(invocationContext, paramsObj) {
+    var aS = appState;
+    var pO = paramsObj;
+    switch (invocationContext) {
 
-            var doneSubtasks = newTaskParentObj.progress / 
-                               (100/(newTaskParentObj.children.length-1));
+        case "createCard":
+            aS.taskCount++;
+            aS.taskWeight = 1/aS.taskCount;
+            aS.globalProgress = aS.netLocalProgressSum*aS.taskWeight;
+            return appState;
 
-            var localStates = {}; 
-                // state before makeParentageLinks()
-                localStates.prevSubtaskCount  = newTaskParentObj.children.length-1;
-                localStates.prevSubtaskWeigth = 100/localStates.prevSubtaskCount; 
-                localStates.prevLocalProgress = newTaskParentObj.progress; 
-                // state after makeParentageLinks()
-                localStates.subtaskCount  = newTaskParentObj.children.length; 
-                localStates.subtaskWeigth = 100/localState.subtaskCount; 
-                localStates.localProgress = doneSubtasks * localStates.subtaskWeigth;
+        case "deleteTask":
+            // console.log("before",aS);
+            // ========================================================================
+            // ⚠️⚠️⚠️ NEEDS TO BE TESTED AFTER IMPLEMENTING THE CHECK CARD FEATURE ⚠️⚠️⚠️
+            // ========================================================================
+            // Don't refactor updateLocalProgress() for this first version because you
+            // might get bogged down with the cyclic dependencies
+            if ( pO.thisTask.level === "Level 1" ) {
+                aS.taskCount--;
+                aS.taskWeight = aS.taskCount > 0 ? 1/aS.taskCount : 0;
+                aS.netLocalProgressSum = 
+                    pO.thisTask.progress !== 0 ?
+                        aS.netLocalProgressSum - pO.thisTask.progress :
+                        aS.netLocalProgressSum;
+            }
+            if ( pO.thisTask.level === "Level 2" && pO.thisTask.progress === 100 ) {
+                aS.netLocalProgressSum -= pO.thisTask.progress;
 
-            // update parent task progress (in both the record and the UI)            
-            newTaskParentObj.progress = localStates.localProgress; 
-            g("#"+newTaskParentObj.id).querySelector(".progress").style.width 
-                = newTaskParentObject.progress;
+            // the task was marked as done
+                // get its previous local weight
+                // substract 
 
-            // update global progress (in both the record and the UI)
-            updateGlobalProgress(updateAppState("updateLocalProgress", localStates));
-         
-            console.log(doneSubtasks);
-        }
-    }
+
+
+
+                // the task was still uncompleted
+                    // nothing needs to be done since the local state isn't 
+                    // held in any object (it is calculated on the fly out
+                    // of the regular data in tasks objects)
+            }
+
+            aS.globalProgress = aS.netLocalProgressSum*aS.taskWeight;
+            // console.log("after",aS);
+
+        case "updateLocalState":
+            aS.netLocalProgressSum -= pO.prevLocalProgress;
+            aS.netLocalProgressSum += pO.localProgress;
+            aS.globalProgress = aS.netLocalProgressSum*aS.taskWeight;
+            return appState;
+    }    
 }
 
     
@@ -684,59 +745,6 @@ function deleteTask(taskCard) {
     updateAppState("deleteTask", { "thisTask": thisTask });
     
     // update the rest of the UI (according to appState)
-}
-
-function updateAppState(invocationContext, paramsObj) {
-    var aS = appState;
-    var pO = paramsObj;
-    switch (invocationContext) {
-
-        case "createCard":
-            aS.taskCount++;
-            aS.taskWeight = 1/aS.taskCount;
-            aS.globalProgress = aS.netLocalProgressSum*aS.taskWeight;
-            return appState;
-
-        case "deleteTask":
-            // console.log("before",aS);
-            // ========================================================================
-            // ⚠️⚠️⚠️ NEEDS TO BE TESTED AFTER IMPLEMENTING THE CHECK CARD FEATURE ⚠️⚠️⚠️
-            // ========================================================================
-            // Don't refactor updateLocalProgress() for this first version because you
-            // might get bogged down with the cyclic dependencies
-            if ( pO.thisTask.level === "Level 1" ) {
-                aS.taskCount--;
-                aS.taskWeight = aS.taskCount > 0 ? 1/aS.taskCount : 0;
-                aS.netLocalProgressSum = 
-                    pO.thisTask.progress !== 0 ?
-                        aS.netLocalProgressSum - pO.thisTask.progress :
-                        aS.netLocalProgressSum;
-            }
-            if ( pO.thisTask.level === "Level 2" && pO.thisTask.progress === 100 ) {
-                aS.netLocalProgressSum -= pO.thisTask.progress;
-
-            // the task was marked as done
-                // get its previous local weight
-                // substract 
-
-
-
-
-                // the task was still uncompleted
-                    // nothing needs to be done since the local state isn't 
-                    // held in any object (it is calculated on the fly out
-                    // of the regular data in tasks objects)
-            }
-
-            aS.globalProgress = aS.netLocalProgressSum*aS.taskWeight;
-            // console.log("after",aS);
-
-        case "updateLocalProgress":
-            aS.netLocalProgressSum -= pO.prevLocalProgress;
-            aS.netLocalProgressSum += pO.localProgress;
-            aS.globalProgress = aS.netLocalProgressSum*aS.taskWeight;
-            return appState;
-    }    
 }
 
 function openModal() {
