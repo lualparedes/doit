@@ -26,6 +26,8 @@
 
 */
 
+(function(){
+
 //////////////////
 // GLOBAL STUFF //
 //////////////////______________________________________________________________
@@ -365,6 +367,10 @@ function createTask(e) {
             parent: null,
             children: []
         }
+        if ( newTask.level === "Level 2" ) {            
+            makeParentageLinks(newTask); 
+            updateLocalProgress(newTask);
+        }
         tasks.push(newTask);
         // display the new task
         updateDisplayedTasks();
@@ -374,6 +380,66 @@ function createTask(e) {
         window.alert("You need to insert a task name");
     }    
 }
+function makeParentageLinks(newTask) {
+    // get all the level 1 cards
+    var mainCards = g(".wrap").querySelectorAll(".card--lvl1");
+
+    if ( mainCards.length > 0 ) {                
+        var lastCardKey = mainCards.length - 1;
+        // get the id
+        var parentTaskId = mainCards[lastCardKey].parentNode.id;
+        // assign the id as parent
+        newTask.parent = parentTaskId;
+        // get parent task and update its children
+        tasks.find( (item) => item.id.toString() === parentTaskId )
+             .children.push(newTask.id);
+    }
+}
+// Update local progress
+// ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+// Updates progress of parent task in both the bar in the card and the object
+// with the data of the parent task. This operation is only needed if there's 
+// any (local) progress already achieved.
+function updateLocalProgress(newTask) {
+    // make sure that the newTask has a parent
+    if ( newTask.parent !== null ) {
+        // get the parent
+        var newTaskParentObj = tasks.find( 
+            (item) => item.id.toString() === newTask.parent 
+        );
+        // update progress if needed
+        if ( newTaskParentObj.progress > 0 ) {
+
+            // ====================================================
+            // ⚠️⚠️⚠️ NEEDS TO BE TESTED (AS WELL AS ITS CASE) ⚠️⚠️⚠️
+            // ====================================================
+
+            var doneSubtasks = newTaskParentObj.progress / 
+                               (100/(newTaskParentObj.children.length-1));
+
+            var localStates = {}; 
+                // state before makeParentageLinks()
+                localStates.prevSubtaskCount  = newTaskParentObj.children.length-1;
+                localStates.prevSubtaskWeigth = 100/localStates.prevSubtaskCount; 
+                localStates.prevLocalProgress = newTaskParentObj.progress; 
+                // state after makeParentageLinks()
+                localStates.subtaskCount  = newTaskParentObj.children.length; 
+                localStates.subtaskWeigth = 100/localState.subtaskCount; 
+                localStates.localProgress = doneSubtasks * localStates.subtaskWeigth;
+
+            // update parent task progress (in both the record and the UI)            
+            newTaskParentObj.progress = localStates.localProgress; 
+            g("#"+newTaskParentObj.id).querySelector(".progress").style.width 
+                = newTaskParentObject.progress;
+
+            // update global progress (in both the record and the UI)
+            updateGlobalProgress(updateAppState("updateLocalProgress", localStates));
+         
+            console.log(doneSubtasks);
+        }
+    }
+}
+
     
 
 //////////////////
@@ -493,9 +559,19 @@ function updateGlobalProgress(currentAppState) {
 // TASK OPERATIONS //
 /////////////////////___________________________________________________________
 
-// Delete task
-// ¨¨¨¨¨¨¨¨¨¨¨
+// Event listeners
+// ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
 g(".wrap").on("click", function(e){
+
+    // js-showTaskDetails listener
+    // ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+    if ( e.target.classList.contains("js-showTaskDetails") ||
+         e.target.classList.contains("icon-menu") ) {
+        showTaskDetails( 
+            e.target.closest(".card-wrap").querySelector(".details"),
+            e.target.closest(".actionbtn")
+        );
+    }
 
     // js-deleteTask listener
     // ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
@@ -509,6 +585,24 @@ g(".wrap").on("click", function(e){
 
 });
 
+
+// Task details
+// ¨¨¨¨¨¨¨¨¨¨¨¨
+function showTaskDetails(cardDetailsEl, cardButtonEl) {
+    if ( cardDetailsEl.offsetHeight === 0 ) {
+        cardButtonEl.style.background = STYLES.cBghover;
+        cardButtonEl.style.color = STYLES.cText;
+        slideToggle(cardDetailsEl);
+    } else {
+        cardButtonEl.style.background = "";
+        cardButtonEl.style.color = "";
+        slideToggle(cardDetailsEl);
+    }
+}
+
+
+// Delete task
+// ¨¨¨¨¨¨¨¨¨¨¨
 function askConfirmation(callback, callbackParams) {
     openModal();
     g(".modal").onclick = function(e){
@@ -521,7 +615,13 @@ function askConfirmation(callback, callbackParams) {
         // askConfirmation() is invoked, to allow its reutilization with a 
         // different callback.
         if ( e.target.classList.contains("js-ok") ) {
+
+            console.log("before:");
+            console.table(tasks);
             callback(callbackParams);
+            console.log("after:");
+            console.table(tasks);
+
             closeModal();
         } else if ( e.target.classList.contains("js-cancel") ) {
             closeModal();
@@ -533,16 +633,50 @@ function deleteTask(taskCard) {
     
     var thisTask = tasks.find( (item) => item.id.toString() === taskCard.id );
 
+    // Special case: Level 1 card with children
+    if ( thisTask.children.length !== 0 ) {
+        (function deleteSubtasks() {
+            var subtasks = thisTask.children;
+            var subtaskCard;
+            var subtaskIndex;
+
+            for (var i = subtasks.length - 1; i >= 0; i--) {
+
+                // delete children subtasks' cards
+                subtaskCard = document.getElementById(subtasks[i]);
+                subtaskCard.parentNode.removeChild(subtaskCard);
+
+                // delete children subtasks
+                tasks.splice( 
+                    tasks.indexOf( 
+                        tasks.find(
+                            (item) => item.id === subtasks[i] 
+                        )
+                    ), 1 
+                );                
+            }
+        })();        
+    }
+
+    // Special case: Level 2 card
+    if ( thisTask.level === "Level 2" && thisTask.parent !== null ) {
+        // remove it from the list of its parent's children
+        var parentTaskObj = tasks.find( (item) => item.id.toString() === thisTask.parent );
+        var levelFamily = parentTaskObj.children;
+
+        levelFamily.splice(
+            levelFamily.indexOf(
+                levelFamily.find( 
+                    (item) => item === thisTask.id 
+                )
+            ), 1
+        );
+    } 
+
     // delete task (in tasks array)
     tasks.splice( tasks.indexOf( thisTask ), 1 );       
     // delete task card 
     taskCard.parentNode.removeChild(taskCard);
-
-    if ( thisTask.children.length !== 0 ) {
-        // delete children subtasks
-        console.log("holi", tasks);
-        // delete children subtasks' cards 
-    }
 
     // update appState
     updateAppState("deleteTask", { "thisTask": thisTask });
@@ -563,17 +697,31 @@ function updateAppState(invocationContext, paramsObj) {
 
         case "deleteTask":
             // console.log("before",aS);
-            if ( pO.thisTask.level === "Level 1") {
+            // ========================================================================
+            // ⚠️⚠️⚠️ NEEDS TO BE TESTED AFTER IMPLEMENTING THE CHECK CARD FEATURE ⚠️⚠️⚠️
+            // ========================================================================
+            // Don't refactor updateLocalProgress() for this first version because you
+            // might get bogged down with the cyclic dependencies
+            if ( pO.thisTask.level === "Level 1" ) {
                 aS.taskCount--;
                 aS.taskWeight = aS.taskCount > 0 ? 1/aS.taskCount : 0;
-            }            
-            aS.netLocalProgressSum = 
-                pO.thisTask.progress !== 0 ? // check this condition when dealing with level 2
-                    aS.netLocalProgressSum - pO.thisTask.progress : 
-                    aS.netLocalProgressSum;
+                aS.netLocalProgressSum = 
+                    pO.thisTask.progress !== 0 ?
+                        aS.netLocalProgressSum - pO.thisTask.progress :
+                        aS.netLocalProgressSum;
+            }
+            if ( pO.thisTask.level === "Level 2" ) {
+                aS.netLocalProgressSum -= pO.thisTask.progress;
+            }
+
             aS.globalProgress = aS.netLocalProgressSum*aS.taskWeight;
             // console.log("after",aS);
 
+        case "updateLocalProgress":
+            aS.netLocalProgressSum -= pO.prevLocalProgress;
+            aS.netLocalProgressSum += pO.localProgress;
+            aS.globalProgress = aS.netLocalProgressSum*aS.taskWeight;
+            return appState;
     }    
 }
 
@@ -597,16 +745,15 @@ function closeModal() {
 
 
 
-// Task details
-// ¨¨¨¨¨¨¨¨¨¨¨¨
 
-// every task completed must contain the date of completion
-// sub-tasks don't affect directly the global progress bar (they affect the
-// progress bar of the parent task)
 
 // Mark as done (main)
 // ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
 // points
+
+// every task completed must contain the date of completion
+// sub-tasks don't affect directly the global progress bar (they affect the
+// progress bar of the parent task)
 
 // Mark as done (subtask)
 // ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
@@ -630,3 +777,5 @@ function closeModal() {
 
 
 })()
+
+})();
