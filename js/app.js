@@ -1,32 +1,6 @@
-/*
-
-- Show/hide player information
-
-----------------------------------------------
-
-- Card (regular)
-    - Close
-    - Show more info
-    - Mark as done
-        - Update stuff (progress, score)
-        - Fire notifications
-
-- Modal
-    - Display
-    - Choose option
-    - Hide
-
-- Task
-    - id (a simple timestamp)
-    - description
-    - level
-    - status
-    - children (if any)
-
-
-*/
-
 (function(){
+
+"use strict";
 
 //////////////////
 // GLOBAL STUFF //
@@ -126,13 +100,26 @@ var appState = {
     globalProgress: 0 // [4]
 };
 
-// --
+// Game state
+// ¨¨¨¨¨¨¨¨¨¨
+// Information about game stats.
+// @notes
+// [1] All the score acumulated since the user started playing.
+// [2] The health value has the [0,100] range. It remains untouched during this
+//     frist version of the app, although the idea is to decrease it whenever
+//     the user misses a deadline (which is another feature that needs to be
+//     added). If the health reaches 0 the XP value gets lowered.
+// [3] Every main task done adds 1 to this value, and it gets reseted at the end
+//     of each day (thus the difference with XP).
+var gameState = {
+    xp: 0, // [1]
+    health: 100, // [2]
+    score: 0 // [3]
+};
 
 
 
 (function(){
-
-"use strict";
 
 ///////////////
 // UTILITIES //
@@ -200,6 +187,55 @@ function fadeOut(el) {
     }, 500);
 }
 
+// Modal firing/hiding
+// ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+function openModal() {
+    // show the backdrop...
+    fadeIn(g(".backdrop"));
+    // ...and the modal itself
+    g(".modal").style.transition = "all .25s ease";
+    setTimeout(function(){
+        g(".modal").style.transform = "translate(-50%, -50%) scale(1,1)";
+    }, 100);
+}
+function closeModal() {
+    // close the modal itself...
+    g(".modal").style.transform = "";
+    // ...and the backdrop
+    setTimeout(function(){
+        fadeOut(g(".backdrop"));
+    }, 150);        
+}
+
+// Show notification
+// ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+function showNotification() { 
+    // show the notification gracefully
+    g(".notif--points").style.display = "flex";
+    g(".notif--msg").style.display = "flex";
+
+    setTimeout(function() {
+
+        g(".notif--points").style.opacity = "1";
+        g(".notif--points").style.top = "40px";
+        g(".notif--msg").style.opacity = "1";
+        g(".notif--msg").style.top = "104px";
+
+        // make the notification disappear gracefully
+        setTimeout(function() {
+            g(".notif--points").style.opacity = "";
+            g(".notif--msg").style.opacity = "";
+            setTimeout(function() {
+                g(".notif--points").style.top = "";
+                g(".notif--msg").style.top = "";
+                g(".notif").style.display = "";
+            }, 350);        
+        }, 1500);
+
+    },1);
+    
+
+}
 
 
 ///////////////
@@ -542,7 +578,7 @@ function createCard(task) {
                             <button class="actionbtn js-deleteTask">\
                                 <span class="icon-delete"></span>\
                             </button>\
-                            <button class="actionbtn checkbutton js-doneTask">\
+                            <button class="actionbtn checkbutton js-markAsDone">\
                                 <span class="icon-unchecked"></span>\
                             </button>\
                         </div>\
@@ -572,7 +608,7 @@ function createCard(task) {
                             <button class="actionbtn js-deleteTask">\
                                 <span class="icon-delete"></span>\
                             </button>\
-                            <button class="actionbtn checkbutton js-doneTask">\
+                            <button class="actionbtn checkbutton js-markAsDone">\
                                 <span class="icon-unchecked"></span>\
                             </button>\
                         </div>\
@@ -644,6 +680,20 @@ g(".wrap").on("click", function(e){
             deleteTask,
             e.target.closest(".card-wrap")
         );
+    }
+
+    // js-markAsDone listener
+    // ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+    if ( e.target.classList.contains("js-markAsDone") ||
+         e.target.classList.contains("icon-unchecked") ||
+         e.target.classList.contains("icon-check") ) {
+
+        if ( e.target.closest(".card").classList.contains("card--done") ) {
+            markAsUndone( e.target.closest(".card-wrap") );
+        } else {
+            markAsDone( e.target.closest(".card-wrap") );
+        }
+
     }
 
 });
@@ -762,8 +812,7 @@ function deleteTask(taskCard) {
                     tasksDone.splice( tasksDone.indexOf( subtaskObj ), 1); 
                 } else {
                     tasks.splice( tasks.indexOf( subtaskObj ), 1); 
-                }
-                
+                }                
                   
             }
         }());
@@ -863,30 +912,142 @@ function deleteTask(taskCard) {
 
 }
 
-function openModal() {
-    // show the backdrop...
-    fadeIn(g(".backdrop"));
-    // ...and the modal itself
-    g(".modal").style.transition = "all .25s ease";
-    setTimeout(function(){
-        g(".modal").style.transform = "translate(-50%, -50%) scale(1,1)";
-    }, 100);
+
+
+// Mark as done 
+// ¨¨¨¨¨¨¨¨¨¨¨¨
+function markAsDone(taskCard) {
+
+    var thisTask = tasks.find( (item) => item.id.toString() === taskCard.id );
+
+  //----------------------------------------------------------------------------
+
+  /*
+    - 
+  */
+
+
+  //----------------------------------------------------------------------------
+
+    // function doneMainTask() { for common stuff?? }
+
+    // LEVEL 1 | NO CHILDREN
+    // - change button style
+    // - set state.progress to 100
+    // - animate the task bar to reach 100%
+    // - remove task from tasks / add completion date
+    // - fade out card
+    // - fire notifications (all main tasks add the same score for this version)
+    // - add task to tasksDone
+    // - update gameState
+    // - update appState
+    // - update global progress
+    function doneMainTaskNoChildren() {
+        // change button style
+        taskCard.querySelector(".js-markAsDone span").classList.toggle("icon-unchecked");
+        taskCard.querySelector(".js-markAsDone span").classList.toggle("icon-check");
+        // update this task object
+        thisTask.state.progress = 100;        
+        // update global task data structures
+        thisTask.completionDate = new Date();
+        tasksDone.push(thisTask);
+        tasks.splice( tasks.indexOf( thisTask ), 1 );
+        //
+        taskCard.querySelector(".progress").style.width = "100%";
+        fadeOut(taskCard);
+        showNotification();
+        // 
+        gameState.xp++;
+        gameState.score++;
+        //
+        appState.globalProgress += appState.taskWeight;
+        //
+        updateGlobalProgress(appState);
+    }
+
+    // LEVEL 1 | WITH CHILDREN
+    // - change button style
+    // - set state.progress to 100
+    // - animate the task bar to reach 100%
+    // - remove task from tasks / add completion date
+    // - remove children subtasks from tasks
+    // - remove children cards gracefully (perhaps an animation that includes
+    //   some anticipation adding extra padding and then shrink/collapse them)
+    // - fade out card
+    // - fire notifications (all main tasks add the same score for this version)
+    // - add task to tasksDone (think about adding the tasks too)
+    // - update gameState
+    // - update appState
+    // - update global progress
+    function doneMainTaskWithChildren() {
+
+
+
+    }
+
+  //----------------------------------------------------------------------------
+
+    // LEVEL 2 | NO PARENT
+    // - change button style
+    // - change card style
+    // - set state.progress to 100
+    // - 🚫 no need to update any progress thing
+    // - 🚫 avoid changing it from tasks to tasksDone, since it is better to 
+    //   remove it once the user hits delete
+    function doneSubtaskNoParent() {
+
+
+
+    }
+
+    // LEVEL 2 | WITH PARENT
+    // - change button style
+    // - change card style
+    // - set state.progress to 100
+    // - update <parent>.state
+    // - update parent's progress bar
+    // - update appState
+    // - update global progress bar
+    // - 🚫 avoid changing it from tasks to tasksDone, since it is better to 
+    //   remove them all at once after their parent has been completed 
+    function doneSubtaskWithParent() {
+
+
+
+    }
+
+  //----------------------------------------------------------------------------
+
+    if ( thisTask.level === "Level 1" ) {
+
+        if ( thisTask.children.length !== 0 ) {
+            doneMainTaskWithChildren();
+        } else {
+            doneMainTaskNoChildren();
+        }
+
+    } else {
+
+        if ( thisTask.parent !== null ) {
+            doneSubtaskWithParent();
+        } else {
+            doneSubtaskNoParent();
+        }
+
+    }
+    // - change button style
+    // - change card style
+
 }
-function closeModal() {
-    // close the modal itself...
-    g(".modal").style.transform = "";
-    // ...and the backdrop
-    setTimeout(function(){
-        fadeOut(g(".backdrop"));
-    }, 150);        
+
+function markAsUndone(taskCard) {
+
+    var thisTask = tasksDone.find( (item) => item.id.toString() === taskCard.id );
+
+    // this only has 2 cases since it only applies to level 2 cards :P
+
+
 }
-
-
-
-
-
-// Mark as done (main)
-// ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
 // points
 
 // every task completed must contain the date of completion
@@ -904,10 +1065,13 @@ function closeModal() {
 ///////////////
 ///////////////_________________________________________________________________
 /*
+- localStorage
+    - add to apis guide properly → https://developer.mozilla.org/en-US/docs/Web/API/Storage
+- daily reset / initialization
+- clean HTML base
 
 - draganddrop
-- localStorage
-- daily reset
+
 
 */
 

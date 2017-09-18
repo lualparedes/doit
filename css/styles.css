@@ -104,7 +104,6 @@ select {
   src: url("../fonts/icomoon.eot?6igoop#iefix") format("embedded-opentype"), url("../fonts/icomoon.ttf?6igoop") format("truetype"), url("../fonts/icomoon.woff?6igoop") format("woff");
   font-weight: normal;
   font-style: normal; }
-
 [class^="icon-"], [class*=" icon-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'icomoon' !important;
@@ -212,7 +211,6 @@ select {
   background: linear-gradient(to right, #0be4a7, #89e358);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent; }
-
 .checkbutton--done:hover {
   background: transparent;
   color: #333; }
@@ -238,9 +236,10 @@ select {
       border-bottom-left-radius: 4px; }
 
 .progress {
-  width: 50%;
+  width: 0;
   height: 8px;
-  border-radius: 4px; }
+  border-radius: 4px;
+  transition: all .35s ease; }
   .progress--accent {
     background: linear-gradient(to right, #fa7d96, #fec2a0); }
   .progress--progress {
@@ -257,24 +256,27 @@ select {
   display: flex;
   justify-content: center;
   align-items: center;
+  display: none;
   position: fixed;
   right: 24px;
   z-index: 3;
   color: #fff;
   font-weight: bold;
   box-shadow: 0 16px 16px -10px rgba(0, 0, 0, 0.5);
-  text-align: center; }
+  text-align: center;
+  opacity: 0;
+  transition: all .35s ease; }
   .notif__emo {
     margin-left: 8px;
     width: 24px; }
   .notif--points {
-    top: 64px;
+    top: 104px;
     background: linear-gradient(to right, #0be4a7, #89e358);
     min-width: 64px;
     font-size: 1.25rem;
     padding-top: 20px; }
   .notif--msg {
-    top: 128px;
+    top: 168px;
     background: #333; }
 
 /* Molecules */
@@ -393,7 +395,6 @@ select {
   font-size: 1.25rem;
   font-weight: bold;
   border-bottom: 2px solid #b3b3b3; }
-
 .user-info__status {
   display: flex;
   padding: 12px 8px; }
@@ -493,3 +494,5 @@ header {
       margin-left: 16px; }
 
 /* Templates */
+
+/*# sourceMappingURL=styles.css.map */

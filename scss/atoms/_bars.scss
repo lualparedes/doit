@@ -25,9 +25,10 @@
 
 // The bar that represents the actual progress
 .progress {
-    width: 50%;
+    width: 0;
     height: 8px;
     border-radius: 4px;
+    transition: all .35s ease;
     &--accent {
         background: $g-accent;
     }

@@ -3,6 +3,7 @@
 .notif {
     @include boxie($h: 48px);
     @include center-flex();
+    display: none;
     position: fixed;
     right: 24px;
     z-index: z(notification);
@@ -10,19 +11,21 @@
     font-weight: bold;
     box-shadow: $s-lvl4;
     text-align: center;
+    opacity: 0;
+    transition: all .35s ease;
     &__emo {
         margin-left: 8px;
         width: 24px;
     }
     &--points {
-        top: 64px;
+        top: 40+64px;
         background: $g-progress;
         min-width: 64px;
         font-size: 1.25rem;
         padding-top: 20px; // [1]
     }
     &--msg {
-        top: 128px;
+        top: 104+64px;
         background: $c-text;
     }
 }
