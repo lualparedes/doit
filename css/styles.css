@@ -67,7 +67,8 @@ img {
   max-width: 900px; }
 
 .card-wrap {
-  display: flex; }
+  display: flex;
+  transition: all .5s ease .35s; }
 
 .backdrop {
   display: none;

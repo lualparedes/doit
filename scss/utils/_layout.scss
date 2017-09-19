@@ -9,8 +9,11 @@
     max-width: 900px;
 }
 
+// @notes
+// [1] .35s is the time it takes the progress bar to reach 100%
 .card-wrap {
     display: flex;
+    transition: all .5s ease .35s; // [1]
 }
 
 .backdrop {

@@ -84,7 +84,7 @@ var appConfig = {
 // @notes
 // [1] Number of main tasks ("Level 1" tasks).
 // [2] The weight of the task in terms of how much of the total work to do it 
-//     represents. 
+//     represents. It ranges from 0 to 1. 
 // [3] The **net** sum of all the progress achieved by each **separate**
 //     main task. This sum can be greater than 100% since local progress is
 //     calculated with respect to each main task, thus if, for instance, two 
@@ -228,13 +228,12 @@ function showNotification() {
             setTimeout(function() {
                 g(".notif--points").style.top = "";
                 g(".notif--msg").style.top = "";
-                g(".notif").style.display = "";
+                g(".notif--points").style.display = "";
+                g(".notif--msg").style.display = "";
             }, 350);        
         }, 1500);
 
     },1);
-    
-
 }
 
 
@@ -447,22 +446,37 @@ function makeParentageLinks(newTask) {
         var parentTaskId = mainCards[lastCardKey].parentNode.id;
         // assign the id as parent
         newTask.parent = parentTaskId;
-        // get parent task
+        // get parent task and state for comparison
         var parentTaskObj = tasks.find( 
             (item) => item.id.toString() === parentTaskId 
         );
+        var prevLocalState = clone(parentTaskObj.state);
         // update its parent's children
         parentTaskObj.children.push(newTask.id);
-        // update its parent's state and update global state and UI accordingly
+
+        // update its parent's state and UI accordingly
+        parentTaskObj.state.subtaskCount++;
+        parentTaskObj.state.subtaskWeight = 100/parentTaskObj.state.subtaskCount;
+        parentTaskObj.state.progress = 
+            parentTaskObj.state.subtasksDone*parentTaskObj.state.subtaskWeight;
+        updateLocalProgress(newTask, parentTaskObj);
+
+        // update global state and UI accordingly
+        appState.netLocalProgressSum = 
+            appState.netLocalProgressSum 
+            - prevLocalState.progress 
+            + parentTaskObj.state.progress;
+        appState.globalProgress = appState.netLocalProgressSum*appState.taskWeight;
+        updateGlobalProgress(appState);
 
         //console.log("Add: before");
         //console.log(parentTaskObj.state);
-        updateGlobalProgress(
+        /*updateGlobalProgress(
             updateAppState(
                 "updateLocalState", 
                 updateLocalState(parentTaskObj, newTask, "createTask")
             )
-        );
+        );*/
         //console.log("Add: after");
         //console.log(parentTaskObj.state);
         
@@ -487,9 +501,13 @@ function updateAppState(invocationContext, paramsObj) {
         break;
 
         case "deleteMainTaskNoChildren":
+            console.log("before: ");
+            console.log(aS);
             aS.taskCount--;
-            aS.taskWeight = aS.taskCount>0  ?  100/aS.taskCount  :  0;
-            aS.globalProgress = aS.netLocalProgressSum*aS.taskWeight;            
+            aS.taskWeight = aS.taskCount>0  ?  1/aS.taskCount  :  0;
+            aS.globalProgress = aS.netLocalProgressSum*aS.taskWeight; 
+            console.log("after: ");
+            console.log(aS);           
         break;
     }  
     return appState;  
@@ -500,7 +518,12 @@ function updateAppState(invocationContext, paramsObj) {
 // ====================================================
 // ⚠️⚠️⚠️ RE-TEST WHEN MARK AS DONE HAS BEEN ADDED ⚠️⚠️⚠️
 // ====================================================
-function updateLocalState(parentTaskObj, thisTask, operationType){
+function updateLocalProgress(thisTask, parentTaskObj){
+    document
+        .getElementById(thisTask.parent).querySelector(".progress")
+        .style.width = parentTaskObj.state.progress+"%";
+}
+/*function updateLocalState(parentTaskObj, thisTask, operationType){
     // save a copy of the parent's state for future comparissons
     var prevLocalState = clone(parentTaskObj.state);
 
@@ -515,21 +538,35 @@ function updateLocalState(parentTaskObj, thisTask, operationType){
     }
     // check edge case
     if ( parentTaskObj.state.subtaskCount > 0 ) {
+
         parentTaskObj.state.subtaskWeight = 100/parentTaskObj.state.subtaskCount;
-        parentTaskObj.state.progress = 
-            (parentTaskObj.state.subtasksDone / 
-             parentTaskObj.state.subtaskCount) * 100;
-    } else {
+        
+        // subtask was done and this is being called from deleteSubtaskWithParent
+        if ( operationType === "deleteSubtaskWithParent" &&
+             document.getElementById(thisTask.id)
+             .querySelector(".card").classList.contains("card--done") ) {
+            console.log("you arrived");
+            parentTaskObj.state.progress = 
+                prevLocalState.progress - prevLocalState.subtaskWeight;
+        } else {
+        // all other cases
+        console.log("you arrived here");
+            parentTaskObj.state.progress = 
+                (parentTaskObj.state.subtasksDone / 
+                 parentTaskObj.state.subtaskCount) * 100;
+        }
+
         parentTaskObj.state.subtaskWeight = 0;
         parentTaskObj.state.progress = 0;
+
     }    
 
-    (function updateLocalProgress(){
-        document
-            .getElementById(thisTask.parent).querySelector(".progress")
-            .style.width =
-                parentTaskObj.state.progress;
-    }());
+    if ( parentTaskObj.state.progress === 100 ) {
+        // the idea is to fire the case doneMainTaskWithChildren()
+        markAsDone( document.getElementById(parentTaskObj.id) );
+    } else {
+        updateLocalProgress(thisTask, parentTaskObj);
+    }
 
     var localStates = {
         prevLocalProgress: prevLocalState.progress,
@@ -537,7 +574,7 @@ function updateLocalState(parentTaskObj, thisTask, operationType){
     }
 
     return localStates;
-}
+}*/
 
     
 
@@ -649,7 +686,7 @@ function createCard(task) {
 }
 
 function updateGlobalProgress(currentAppState) {
-    g(".js-globalProgress").style.width = currentAppState.globalProgress;
+    g(".js-globalProgress").style.width = currentAppState.globalProgress+"%";
 }
 
 
@@ -728,13 +765,13 @@ function askConfirmation(callback, callbackParams) {
         if ( e.target.classList.contains("js-ok") ) {
 
 
-            console.log("before: ");
-            console.table(tasks);
-            console.log(appState);
+            // console.log("before: ");
+            // console.table(tasks);
+            // console.log(appState);
             callback(callbackParams);
-            console.log("after: ");
-            console.table(tasks);
-            console.log(appState);
+            // console.log("after: ");
+            // console.table(tasks);
+            // console.log(appState);
 
 
             closeModal();
@@ -747,10 +784,10 @@ function askConfirmation(callback, callbackParams) {
 function deleteTask(taskCard) {
     
     var thisTask = tasks.find( (item) => item.id.toString() === taskCard.id );
-    if ( thisTask === undefined ) {
+    //if ( thisTask === undefined ) {
         // in case that the task was already done
-        thisTask = tasksDone.find( (item) => item.id.toString() === taskCard.id );
-    }
+    //    thisTask = tasksDone.find( (item) => item.id.toString() === taskCard.id );
+    //}
 
   //----------------------------------------------------------------------------
 
@@ -822,7 +859,7 @@ function deleteTask(taskCard) {
         // update App State "manually" for the sake of simplicity
         appState.taskCount--;
         appState.taskWeight = 
-            appState.taskCount>0  ?  100/appState.taskCount  :  0;
+            appState.taskCount>0  ?  1/appState.taskCount  :  0;
         appState.netLocalProgressSum-= prevLocalProgress;
         appState.globalProgress = appState.taskWeight*appState.netLocalProgressSum;
 
@@ -870,11 +907,47 @@ function deleteTask(taskCard) {
             ), 1
         );
 
-        deleteTaskObjectAndCard();
+        // update its parent's state and UI accordingly
+        if ( taskCard.querySelector(".card").classList.contains("card--done") ) {
 
-        console.log("Inside: before");
-        console.log(parentTaskObj.state);
-        // update its parent's state and update global state and UI accordingly
+            var prevLocalState = clone(parentTaskObj.state);
+
+            parentTaskObj.state.subtaskCount--;
+            parentTaskObj.state.subtaskWeight = 100/parentTaskObj.state.subtaskCount;
+            parentTaskObj.state.subtasksDone--;
+            parentTaskObj.state.progress = 
+                parentTaskObj.state.subtasksDone*parentTaskObj.state.subtaskWeight;
+
+            // update global state and UI accordingly
+            appState.netLocalProgressSum = 
+                appState.netLocalProgressSum 
+                - prevLocalState.progress 
+                + parentTaskObj.state.progress;
+            appState.globalProgress = appState.netLocalProgressSum*appState.taskWeight;
+            updateGlobalProgress(appState);
+
+        } else {
+
+            parentTaskObj.state.subtaskCount--;
+            parentTaskObj.state.subtaskWeight = 100/parentTaskObj.state.subtaskCount;
+            parentTaskObj.state.progress = 
+                parentTaskObj.state.subtasksDone*parentTaskObj.state.subtaskWeight;
+
+            // update global state and UI accordingly
+            appState.netLocalProgressSum = 
+                appState.netLocalProgressSum 
+                - prevLocalState.progress 
+                + parentTaskObj.state.progress;
+            appState.globalProgress = appState.netLocalProgressSum*appState.taskWeight;
+            updateGlobalProgress(appState);
+
+        }
+        updateLocalProgress(thisTask, parentTaskObj);
+
+        // console.log("Inside: before");
+        // console.log(parentTaskObj.state);
+        
+        /*
         updateGlobalProgress(
             updateAppState(
                 "updateLocalState",
@@ -884,9 +957,11 @@ function deleteTask(taskCard) {
                     "deleteSubtaskWithParent"
                 )
             )
-        ); 
-        console.log("Inside: after");
-        console.log(parentTaskObj.state); 
+        );*/ 
+        // console.log("Inside: after");
+        // console.log(parentTaskObj.state); 
+
+        deleteTaskObjectAndCard();
 
     }
 
@@ -913,107 +988,183 @@ function deleteTask(taskCard) {
 }
 
 
-
+function changeButtonStyle(taskCard) {
+    taskCard.querySelector(".js-markAsDone span").classList.toggle("icon-unchecked");
+    taskCard.querySelector(".js-markAsDone span").classList.toggle("icon-check");
+}
 // Mark as done 
 // ¨¨¨¨¨¨¨¨¨¨¨¨
 function markAsDone(taskCard) {
 
-    var thisTask = tasks.find( (item) => item.id.toString() === taskCard.id );
+    var thisTask = tasks.find( (item) => item.id.toString() === taskCard.id );    
 
   //----------------------------------------------------------------------------
-
-  /*
-    - 
-  */
-
-
-  //----------------------------------------------------------------------------
-
-    // function doneMainTask() { for common stuff?? }
 
     // LEVEL 1 | NO CHILDREN
-    // - change button style
-    // - set state.progress to 100
-    // - animate the task bar to reach 100%
-    // - remove task from tasks / add completion date
-    // - fade out card
-    // - fire notifications (all main tasks add the same score for this version)
-    // - add task to tasksDone
-    // - update gameState
-    // - update appState
-    // - update global progress
-    function doneMainTaskNoChildren() {
-        // change button style
-        taskCard.querySelector(".js-markAsDone span").classList.toggle("icon-unchecked");
-        taskCard.querySelector(".js-markAsDone span").classList.toggle("icon-check");
+    function doneMainTaskNoChildren(invokedDirectly) {
+
+        changeButtonStyle(taskCard);
+
         // update this task object
-        thisTask.state.progress = 100;        
-        // update global task data structures
+        thisTask.state.progress = 100;    
+
+        // update global tasks data structures
         thisTask.completionDate = new Date();
         tasksDone.push(thisTask);
         tasks.splice( tasks.indexOf( thisTask ), 1 );
-        //
+
+        // update UI elements linked to the card
         taskCard.querySelector(".progress").style.width = "100%";
-        fadeOut(taskCard);
+
+        taskCard.style.opacity = 0;
+        setTimeout(function() {
+            taskCard.parentNode.removeChild(taskCard); 
+        }, 850);
+        
         showNotification();
-        // 
+
+        // Update global states
         gameState.xp++;
         gameState.score++;
-        //
-        appState.globalProgress += appState.taskWeight;
-        //
+        
+        if ( invokedDirectly ) {
+            // this is made to prevent re-adding the progress when the direct
+            // caller isn't markAsDone(). Such cases are:
+            // [1] doneSubtaskWithParent() → doneMainTaskWithChildren() →
+            //     → (two closures) → here 
+            // [2] updateLocalState() → markAsDone → doneSubtaskWithParent()...            
+            appState.netLocalProgressSum += thisTask.state.progress;
+            appState.globalProgress = appState.netLocalProgressSum*appState.taskWeight;
+        }
+
+        console.log("LEVEL 1 | NO CHILDREN");
+        
+        // Update global UI
         updateGlobalProgress(appState);
     }
 
     // LEVEL 1 | WITH CHILDREN
-    // - change button style
-    // - set state.progress to 100
-    // - animate the task bar to reach 100%
-    // - remove task from tasks / add completion date
-    // - remove children subtasks from tasks
-    // - remove children cards gracefully (perhaps an animation that includes
-    //   some anticipation adding extra padding and then shrink/collapse them)
-    // - fade out card
-    // - fire notifications (all main tasks add the same score for this version)
-    // - add task to tasksDone (think about adding the tasks too)
-    // - update gameState
-    // - update appState
-    // - update global progress
     function doneMainTaskWithChildren() {
 
+        // remove children subtasks from both data structures and the UI
+        (function doneChildrenSubtasks() {
+            var subtasks = thisTask.children;
+            var i = subtasks.length - 1;
+            var subtaskCard;
 
+            function doneEachChildrenSubtask() { 
+
+                if ( i >=0 ) {
+
+                    // delete children subtasks' cards
+                    // @notes
+                    // [1] Keep it at 50ms to avouid errors caused by cycles
+                    //     overlaping
+                    subtaskCard = document.getElementById(subtasks[i]);
+                    subtaskCard.style.transition = "all .25s ease";
+                    subtaskCard.style.transform = "scale(0,0)";
+                    setTimeout(function() {
+                        subtaskCard.parentNode.removeChild(subtaskCard);
+                    },50); // [1]
+
+                    // delete children subtasks
+                    // @notes
+                    // [1] Remember subtasks never get to the tasksDone array
+                    //     because there's no use in that. Thus, they're always 
+                    //     found in the tasks array.
+                    tasks.splice( 
+                        tasks.indexOf( 
+                            tasks.find( 
+                                (item) => item.id === subtasks[i] 
+                            ) 
+                        )
+                    , 1); 
+
+                } else {
+
+                    clearInterval(myInterval);
+
+                    // [1] update this part of the global state here, since 
+                    //     doneMainTaskNoChildren() only updates these appState
+                    //     values when called directly from markAsDone();
+                    // [2] this is also set up here because [1] values depend
+                    //     on this value
+                    thisTask.state.progress = 100; // [2]
+                    appState.netLocalProgressSum += thisTask.state.progress; // [1]
+                    appState.globalProgress = 
+                        appState.netLocalProgressSum*appState.taskWeight; // [1]
+
+                    console.log("LEVEL 1 | WITH CHILDREN");
+
+                    console.log(appState);
+
+                    doneMainTaskNoChildren();
+
+                }
+
+                i--;                
+
+            }
+
+            var myInterval = setInterval(doneEachChildrenSubtask,100);
+
+        }());   
 
     }
 
   //----------------------------------------------------------------------------
 
     // LEVEL 2 | NO PARENT
-    // - change button style
-    // - change card style
-    // - set state.progress to 100
     // - 🚫 no need to update any progress thing
     // - 🚫 avoid changing it from tasks to tasksDone, since it is better to 
     //   remove it once the user hits delete
     function doneSubtaskNoParent() {
+        // update UI elements linked to the card
+        changeButtonStyle(taskCard);
+        taskCard.querySelector(".card").classList.toggle("card--done");
+        // udate subtask data structure
+        thisTask.state.progress = 100;
 
-
-
+        console.log("LEVEL 2 | NO PARENT");
     }
 
     // LEVEL 2 | WITH PARENT
-    // - change button style
-    // - change card style
-    // - set state.progress to 100
-    // - update <parent>.state
-    // - update parent's progress bar
-    // - update appState
-    // - update global progress bar
     // - 🚫 avoid changing it from tasks to tasksDone, since it is better to 
     //   remove them all at once after their parent has been completed 
     function doneSubtaskWithParent() {
 
+        // update UI elements linked to the card
+        changeButtonStyle(taskCard);
+        taskCard.querySelector(".card").classList.toggle("card--done");
 
+        // udate subtask data structure
+        thisTask.state.progress = 100;
 
+        // update parent task data structure and UI
+        var parentTaskObj = tasks.find( (item) => item.id.toString() === thisTask.parent );
+
+        parentTaskObj.state.subtasksDone++;
+        parentTaskObj.state.progress+= parentTaskObj.state.subtaskWeight;
+
+        document.getElementById(parentTaskObj.id)
+            .querySelector(".progress").style.width 
+            = parentTaskObj.state.progress+"%";
+
+        // update global states
+        appState.netLocalProgressSum+= parentTaskObj.state.subtaskWeight;
+        appState.globalProgress = appState.netLocalProgressSum*appState.taskWeight;
+
+        // update global UI
+        updateGlobalProgress(appState);
+
+        // mark parent as done if it was the last child subtask
+        if ( parentTaskObj.state.progress === 100 ) {
+            taskCard = document.getElementById(parentTaskObj.id);
+            thisTask = parentTaskObj;
+            doneMainTaskWithChildren();
+        }
+
+        console.log("LEVEL 2 | WITH PARENT");
     }
 
   //----------------------------------------------------------------------------
@@ -1023,7 +1174,7 @@ function markAsDone(taskCard) {
         if ( thisTask.children.length !== 0 ) {
             doneMainTaskWithChildren();
         } else {
-            doneMainTaskNoChildren();
+            doneMainTaskNoChildren(true);
         }
 
     } else {
@@ -1035,30 +1186,62 @@ function markAsDone(taskCard) {
         }
 
     }
-    // - change button style
-    // - change card style
 
 }
 
 function markAsUndone(taskCard) {
 
-    var thisTask = tasksDone.find( (item) => item.id.toString() === taskCard.id );
+    var thisTask = tasks.find( (item) => item.id.toString() === taskCard.id );
 
-    // this only has 2 cases since it only applies to level 2 cards :P
+  //----------------------------------------------------------------------------
 
+    // LEVEL 2 | NO PARENT
+    function undoneSubtaskNoParent() {
+        // update UI elements linked to the card
+        changeButtonStyle(taskCard);
+        taskCard.querySelector(".card").classList.toggle("card--done");
+        // udate subtask data structure
+        thisTask.state.progress = 0;
+    }
+
+    // LEVEL 2 | WITH PARENT
+    function undoneSubtaskWithParent() {
+
+        // update UI elements linked to the card
+        changeButtonStyle(taskCard);
+        taskCard.querySelector(".card").classList.toggle("card--done");
+
+        // udate subtask data structure
+        thisTask.state.progress = 0;
+
+        // update parent task data structure and UI
+        var parentTaskObj = tasks.find( (item) => item.id.toString() === thisTask.parent );
+
+        parentTaskObj.state.subtasksDone--;
+        parentTaskObj.state.progress-= parentTaskObj.state.subtaskWeight;
+
+        document.getElementById(parentTaskObj.id)
+            .querySelector(".progress").style.width 
+            = parentTaskObj.state.progress+"%";
+
+        // update global states
+        appState.netLocalProgressSum-= parentTaskObj.state.subtaskWeight;
+        appState.globalProgress = appState.netLocalProgressSum*appState.taskWeight;
+
+        // update global UI
+        updateGlobalProgress(appState);
+
+    }
+
+  //----------------------------------------------------------------------------
+
+    if ( thisTask.parent !== null ) {
+        undoneSubtaskWithParent();
+    } else {
+        undoneSubtaskNoParent();
+    }
 
 }
-// points
-
-// every task completed must contain the date of completion
-// sub-tasks don't affect directly the global progress bar (they affect the
-// progress bar of the parent task)
-
-// Mark as done (subtask)
-// ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
-// local progress
-// points
-
 
 
 ///////////////
