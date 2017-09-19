@@ -245,6 +245,8 @@ select {
     background: linear-gradient(to right, #fa7d96, #fec2a0); }
   .progress--progress {
     background: linear-gradient(to right, #0be4a7, #89e358); }
+  .progress--health {
+    width: 100%; }
 
 .circularimage {
   border-radius: 100%;
