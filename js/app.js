@@ -913,10 +913,14 @@ function deleteTask(taskCard) {
             var prevLocalState = clone(parentTaskObj.state);
 
             parentTaskObj.state.subtaskCount--;
-            parentTaskObj.state.subtaskWeight = 100/parentTaskObj.state.subtaskCount;
+            parentTaskObj.state.subtaskWeight = 
+                parentTaskObj.state.subtaskCount>0 ?
+                100/parentTaskObj.state.subtaskCount :
+                0;
             parentTaskObj.state.subtasksDone--;
             parentTaskObj.state.progress = 
                 parentTaskObj.state.subtasksDone*parentTaskObj.state.subtaskWeight;
+            updateLocalProgress(thisTask, parentTaskObj);
 
             // update global state and UI accordingly
             appState.netLocalProgressSum = 
@@ -928,10 +932,22 @@ function deleteTask(taskCard) {
 
         } else {
 
+            var prevLocalState = clone(parentTaskObj.state);
+
             parentTaskObj.state.subtaskCount--;
-            parentTaskObj.state.subtaskWeight = 100/parentTaskObj.state.subtaskCount;
+            parentTaskObj.state.subtaskWeight = 
+                parentTaskObj.state.subtaskCount>0 ?
+                100/parentTaskObj.state.subtaskCount :
+                0;
             parentTaskObj.state.progress = 
                 parentTaskObj.state.subtasksDone*parentTaskObj.state.subtaskWeight;
+            // edge case: last subtask undone (in a group of several subtasks)
+            if ( parentTaskObj.state.progress === 100 ) {
+                // the idea is to fire the case doneMainTaskWithChildren()
+                markAsDone( document.getElementById(parentTaskObj.id) );
+            } else {
+                updateLocalProgress(thisTask, parentTaskObj);
+            }
 
             // update global state and UI accordingly
             appState.netLocalProgressSum = 
@@ -942,7 +958,6 @@ function deleteTask(taskCard) {
             updateGlobalProgress(appState);
 
         }
-        updateLocalProgress(thisTask, parentTaskObj);
 
         // console.log("Inside: before");
         // console.log(parentTaskObj.state);
@@ -1089,8 +1104,12 @@ function markAsDone(taskCard) {
                     //     values when called directly from markAsDone();
                     // [2] this is also set up here because [1] values depend
                     //     on this value
+                    var prevLocalState = clone(thisTask.state);
                     thisTask.state.progress = 100; // [2]
-                    appState.netLocalProgressSum += thisTask.state.progress; // [1]
+                    appState.netLocalProgressSum = 
+                        appState.netLocalProgressSum 
+                        - prevLocalState.progress
+                        + thisTask.state.progress; // [1]
                     appState.globalProgress = 
                         appState.netLocalProgressSum*appState.taskWeight; // [1]
 
@@ -1157,7 +1176,7 @@ function markAsDone(taskCard) {
         // update global UI
         updateGlobalProgress(appState);
 
-        // mark parent as done if it was the last child subtask
+        // edge case: mark parent as done if it was the last child subtask
         if ( parentTaskObj.state.progress === 100 ) {
             taskCard = document.getElementById(parentTaskObj.id);
             thisTask = parentTaskObj;
