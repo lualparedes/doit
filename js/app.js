@@ -1,4 +1,6 @@
-(function(){
+// poluting with f is meant to expose certain vars when debugging (details in
+// the returned object at the end)
+var f = (function (){
 
 "use strict";
 
@@ -14,6 +16,26 @@ var g = function (selector) {
 };
 EventTarget.prototype.on = EventTarget.prototype.addEventListener;
 EventTarget.prototype.off = EventTarget.prototype.removeEventListener;
+
+// Clone object
+// ¨¨¨¨¨¨¨¨¨¨¨¨
+// Create a copy (value not reference) of an existing object. Object.assign()
+// works similarly, but it passes inner objects by reference.
+function clone(object) {
+    if ( Object.entries(object).length > 100 ) {
+        console.warn(
+            "This method might not be optimal for the size of the object"
+        );
+    }
+    return JSON.parse(JSON.stringify(object));;
+}
+
+// Convert formated string to date
+// ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+// Used to convert a **properly formatted** string to a date object
+function toDate(formatedString) {
+    return new Date(formatedString);
+}
 
 // Polyfills
 // ¨¨¨¨¨¨¨¨¨
@@ -56,104 +78,155 @@ var STYLES = {
 // GLOBAL DATA STRUCTURES //
 ////////////////////////////____________________________________________________
 
-// Tasks to do
-// ¨¨¨¨¨¨¨¨¨¨¨
-// An array containing all tasks that still need to be done. Every single 
-// new task gets pushed here.
-var tasks = [];
-
-// Tasks done
-// ¨¨¨¨¨¨¨¨¨¨
-// An array containing all tasks that were completed during the day. It gets 
-// reset every day at 0000.
-var tasksDone = [];
-
-// App configuration
-// ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
-// @notes
-// [1] 0 = "Level 1", 1 = "Level 2", etc.
-var appConfig = {
-    defaultLevel: 0 // [1]
-};
-
-// App state
-// ¨¨¨¨¨¨¨¨¨
-// Object holding useful information about the state of the app. Using this
-// object prevents you from having to execute loops to check items.
-// @notes
-// [1] Number of main tasks ("Level 1" tasks).
-// [2] The weight of the task in terms of how much of the total work to do 
-//     it represents. It ranges from 0 to 1. 
-// [3] The **net** sum of all the progress achieved by each **separate**
-//     main task. This sum can be greater than 100% since local progress is
-//     calculated with respect to each main task, thus if, for instance, two 
-//     main tasks have been completed, then the sum will be 200.
-// [4] The real global progress (netLocalProgressSum*taskWeight).
-var appState = {
-    taskCount: 0, // [1]
-    taskWeight: 0, // [2]
-    netLocalProgressSum: 0, // [3]
-    globalProgress: 0 // [4]
-};
-
-// Game state
-// ¨¨¨¨¨¨¨¨¨¨
-// Information about game stats.
-// @notes
-// [1] All the score acumulated since the user started playing.
-// [2] The health value has the [0,100] range. It remains untouched during this
-//     frist version of the app, although the idea is to decrease it whenever
-//     the user misses a deadline (which is another feature that needs to be
-//     added). If the health reaches 0 the XP value gets lowered.
-// [3] Every main task done adds 1 to this value, and it gets reseted at the end
-//     of each day (thus the difference with XP).
-var gameState = {
-    xp: 0, // [1]
-    health: 100, // [2]
-    score: 0 // [3]
-};
+var tasks,
+    tasksDone,
+    appConfig,
+    appState,
+    gameState,
+    lastReset;
 
 if ( localStorage.length === 0 ) {
+
+    // Tasks to do
+    // ¨¨¨¨¨¨¨¨¨¨¨
+    // An array containing all tasks that still need to be done. Every single 
+    // new task gets pushed here.
+    var tasks = [];
+
+    // Tasks done
+    // ¨¨¨¨¨¨¨¨¨¨
+    // An array containing all tasks that were completed during the day. It gets 
+    // reset every day at 0000.
+    var tasksDone = [];
+
+    // App configuration
+    // ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
+    // @notes
+    // [1] 0 = "Level 1", 1 = "Level 2", etc.
+    var appConfig = {
+        defaultLevel: 0 // [1]
+    };
+
+    // App state
+    // ¨¨¨¨¨¨¨¨¨
+    // Object holding useful information about the state of the app. Using this
+    // object prevents you from having to execute loops to check items.
+    // @notes
+    // [1] Number of main tasks ("Level 1" tasks).
+    // [2] The weight of the task in terms of how much of the total work to do 
+    //     it represents. It ranges from 0 to 1. 
+    // [3] The **net** sum of all the progress achieved by each **separate**
+    //     main task. This sum can be greater than 100% since local progress is
+    //     calculated with respect to each main task, thus if, for instance, two 
+    //     main tasks have been completed, then the sum will be 200.
+    // [4] The real global progress (netLocalProgressSum*taskWeight).
+    var appState = {
+        taskCount: 0, // [1]
+        taskWeight: 0, // [2]
+        netLocalProgressSum: 0, // [3]
+        globalProgress: 0 // [4]
+    };
+
+    // Game state
+    // ¨¨¨¨¨¨¨¨¨¨
+    // Information about game stats.
+    // @notes
+    // [1] All the score acumulated since the user started playing.
+    // [2] The health value has the [0,100] range. It remains untouched during 
+    //     this frist version of the app, although the idea is to decrease it 
+    //     whenever the user misses a deadline (which is another feature that 
+    //     needs to be added). If the health reaches 0 the XP value gets lowered.
+    // [3] Every main task done adds 1 to this value, and it gets reseted at the 
+    //     end of each day (thus the difference with XP).
+    var gameState = {
+        xp: 0, // [1]
+        health: 100, // [2]
+        score: 0 // [3]
+    };
     
+    // Last reset
+    // ¨¨¨¨¨¨¨¨¨¨
+    // Done tasks only count for the progress of their day of completion (to 
+    // keep being productive everyday). For this reason, it is necessary to 
+    // reset tasksDone, gameState.score, and appState. 
+    // lastReset will store the date of the last time the app performs this 
+    // operation, so that values only get reseted at most once per day.
+    var lastReset = new Date();
+
     localStorage.setItem("tasks",     JSON.stringify(tasks));    
     localStorage.setItem("tasksDone", JSON.stringify(tasksDone));    
     localStorage.setItem("appConfig", JSON.stringify(appConfig));
     localStorage.setItem("appState",  JSON.stringify(appState));    
     localStorage.setItem("gameState", JSON.stringify(gameState));
+    localStorage.setItem("lastReset", JSON.stringify(lastReset));
+
 
 }
 
 // =============================================================================
 //                  ⚠️⚠️⚠️ CAUTION / ATENCIÓN / ACHTUNG ⚠️⚠️⚠️
 // =============================================================================
-// THESE VALUES ONLY SERVE TO ACCESS, NOT TO UPDATE, SINCE THE ONLY WAY TO DO
-// THAT IS THROUGH localStorage.setItem
+// THESE VALUES ONLY SERVE TO RETRIEVE, NOT TO UPDATE, SINCE THE ONLY WAY TO DO
+// THAT IS THROUGH localStorage.setItem()
 tasks     = JSON.parse( localStorage.getItem("tasks") );
 tasksDone = JSON.parse( localStorage.getItem("tasksDone") );
 appConfig = JSON.parse( localStorage.getItem("appConfig") );
 appState  = JSON.parse( localStorage.getItem("appState") );
 gameState = JSON.parse( localStorage.getItem("gameState") );
+lastReset = toDate( JSON.parse( localStorage.getItem("lastReset") ) );
 
 
 
 (function(){
 
 ///////////////////////
-// GENERAL UTILITIES //
+// UI INITIALIZATION //
 ///////////////////////_________________________________________________________
 
-// Clone object
-// ¨¨¨¨¨¨¨¨¨¨¨¨
-// Create a copy (value not reference) of an existing object. Object.assign()
-// works similarly, but it passes inner objects by reference.
-function clone(object) {
-    if ( Object.entries(object).length > 100 ) {
-        console.warn(
-            "This method might not be optimal for the size of the object"
-        );
-    }
-    return JSON.parse(JSON.stringify(object));;
-}
+(function init(){
+
+    updateGlobalProgress(appState);
+
+    (function showTasks() {
+        if ( tasks.length>0 && g(".wrap").children.length===1  ) {
+            var newCard;
+            // go through the list and render them all
+            for (var i = 0; i < tasks.length; i++) {
+                newCard = createAndInsertHTMLElement(tasks[i]);  
+                // set any local progress bars to their proper width
+                if ( tasks[i].level === "Level 1" &&
+                     tasks[i].state.progress > 0 ) {
+                    newCard.querySelector(".progress")
+                        .style.width = tasks[i].state.progress+"%";
+                }
+                // set any done subtasks with their proper style
+                if ( tasks[i].level === "Level 2" &&
+                     tasks[i].state.progress === 100  ) {
+                    newCard.querySelector(".card")
+                        .classList.toggle("card--done");
+                    changeButtonStyle(newCard);
+                }
+            }
+        }
+    }());
+
+    updateStatus();
+
+    (function checkReset() {
+        // check when was the last reset
+        // reset if the date isn't today's
+            // delete tasks in tasksDone whose date isn't todays
+            // update appState and gameState
+            // update UI accordingly
+    }());
+
+}());
+
+
+
+//////////////////
+// UI UTILITIES //
+//////////////////______________________________________________________________
 
 // Slide Toggle
 // ¨¨¨¨¨¨¨¨¨¨¨¨
@@ -265,16 +338,14 @@ function updateAppState(invocationContext, paramsObj) {
             aS.taskCount++;
             aS.taskWeight = 1/aS.taskCount;
             aS.globalProgress = aS.netLocalProgressSum*aS.taskWeight;
+            localStorage.setItem("appState",JSON.stringify(appState));
         break;
 
         case "deleteMainTaskNoChildren":
-            console.log("before: ");
-            console.log(aS);
             aS.taskCount--;
             aS.taskWeight = aS.taskCount>0  ?  1/aS.taskCount  :  0;
-            aS.globalProgress = aS.netLocalProgressSum*aS.taskWeight; 
-            console.log("after: ");
-            console.log(aS);           
+            aS.globalProgress = aS.netLocalProgressSum*aS.taskWeight;
+            localStorage.setItem("appState", JSON.stringify(appState));         
         break;
     }  
     return appState;  
@@ -283,6 +354,11 @@ function updateLocalProgress(thisTask, parentTaskObj){
     document
         .getElementById(thisTask.parent).querySelector(".progress")
         .style.width = parentTaskObj.state.progress+"%";
+}
+function updateStatus(){
+    g(".js-xp").innerHTML = gameState.xp;
+    g(".js-health").innerHTML = gameState.health;
+    g(".js-score").innerHTML = gameState.score;
 }
 
 
@@ -368,6 +444,7 @@ function changeDefaultLevel() {
     var defaultIndex = this.options.selectedIndex;
     // set this option to be the default selection
     appConfig.defaultLevel = defaultIndex;
+    localStorage.setItem("appConfig", JSON.stringify(appConfig));
     // update the UI
     var options = this.children;
     for (var i = options.length - 1; i >= 0; i--) {
@@ -483,7 +560,14 @@ function createTask(e) {
         if ( newTask.level === "Level 2" ) { 
             makeParentageLinks(newTask); 
         }
+        //console.log("before: ")
+        //console.log( localStorage.getItem("tasks") );
+        //console.log(tasks);
         tasks.push(newTask);
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        // console.log("after: ")
+        // console.log( localStorage.getItem("tasks") );
+        // console.log(tasks);
         // display the new task
         updateDisplayedTasks();
         // reset the card--add
@@ -497,6 +581,7 @@ function makeParentageLinks(newTask) {
     var mainCards = g(".wrap").querySelectorAll(".card--lvl1");
 
     if ( mainCards.length > 0 ) {                
+
         var lastCardKey = mainCards.length - 1;
         // get the id
         var parentTaskId = mainCards[lastCardKey].parentNode.id;
@@ -515,6 +600,7 @@ function makeParentageLinks(newTask) {
         parentTaskObj.state.subtaskWeight = 100/parentTaskObj.state.subtaskCount;
         parentTaskObj.state.progress = 
             parentTaskObj.state.subtasksDone*parentTaskObj.state.subtaskWeight;
+        localStorage.setItem("tasks", JSON.stringify(tasks));
         updateLocalProgress(newTask, parentTaskObj);
 
         // update global state and UI accordingly
@@ -523,6 +609,7 @@ function makeParentageLinks(newTask) {
             - prevLocalState.progress 
             + parentTaskObj.state.progress;
         appState.globalProgress = appState.netLocalProgressSum*appState.taskWeight;
+        localStorage.setItem("appState", JSON.stringify(appState));
         updateGlobalProgress(appState);
         
     }
@@ -537,24 +624,17 @@ function makeParentageLinks(newTask) {
 function updateDisplayedTasks() {
     // check if there are any tasks (in the array tasks)
     if (tasks.length > 0) {
-        // if no task has been rendered in a card
-        if ( g(".wrap").children.length === 1 ) {
-            // go through the list and render them all
-            for (var i = 0; i < tasks.length; i++) {
-                createCard(tasks[i]);
-            }
-        } else {
-            // check which ones need to be rendered
-            var cardsRendered = g(".wrap").children.length - 1;
-            // generate the cards needed
-            for (var i = cardsRendered; i < tasks.length; i++) {
-                createCard(tasks[i]);
-            }
+        // check which ones need to be rendered
+        var cardsRendered = g(".wrap").children.length - 1;
+        // generate the cards needed
+        for (var i = cardsRendered; i < tasks.length; i++) {
+            createCard(tasks[i]);
         }
     }        
 }
 
-function createCard(task) {
+
+function createAndInsertHTMLElement(task) {
     // useful markup
     var CARD_MARKUP = {
         lvl1:  '<div class="card card--lvl1">\
@@ -621,14 +701,21 @@ function createCard(task) {
         newCard.innerHTML = CARD_MARKUP.lvl2;
 
     // populate the element
-    newCard.innerHTML = newCard.innerHTML
-                        .replace("{{ task.name }}", task.name)
-                        .replace("{{ task.date.year }}", task.date.getFullYear())
-                        .replace("{{ task.date.month }}", "0"+(task.date.getMonth()+1))
-                        .replace("{{ task.date.day }}", task.date.getDate());
+    newCard.innerHTML = 
+        newCard.innerHTML
+        .replace("{{ task.name }}", task.name)
+        .replace("{{ task.date.year }}", toDate(task.date).getFullYear())
+        .replace("{{ task.date.month }}", "0"+(toDate(task.date).getMonth()+1))
+        .replace("{{ task.date.day }}", toDate(task.date).getDate());
     
     // insert the element
     g(".wrap").insertBefore(newCard, g(".js-addCardWrap"));
+
+    return newCard;
+}
+function createCard(task) {
+
+    createAndInsertHTMLElement(task)
 
     // update other elements in the app if needed
     // (REMEMBER: only main tasks ("Level 1") modify taskCount and taskWeight)
@@ -736,27 +823,20 @@ function askConfirmation(callback, callbackParams) {
 function deleteTask(taskCard) {
     
     var thisTask = tasks.find( (item) => item.id.toString() === taskCard.id );
-    //if ( thisTask === undefined ) {
-        // in case that the task was already done
-    //    thisTask = tasksDone.find( (item) => item.id.toString() === taskCard.id );
-    //}
 
   //----------------------------------------------------------------------------
 
     function deleteTaskObjectAndCard() {
         // delete task (in tasks array)
-        tasks.splice( tasks.indexOf( thisTask ), 1 );       
+        tasks.splice( tasks.indexOf( thisTask ), 1 );
+        localStorage.setItem("tasks", JSON.stringify(tasks));       
         // delete task card 
-        taskCard.parentNode.removeChild(taskCard);                
+        taskCard.parentNode.removeChild(taskCard);               
     }
 
   //----------------------------------------------------------------------------
 
     // LEVEL 1 | NO CHILDREN
-    // - delete card
-    // - delete task
-    // - update appState
-    // - update global progress bar
     function deleteMainTaskNoChildren() {
 
         deleteTaskObjectAndCard();
@@ -765,12 +845,9 @@ function deleteTask(taskCard) {
     }
 
     // LEVEL 1 | WITH CHILDREN
-    // - delete card
-    // - delete task
-    // - delete children (this doesn't invoke the case LEVEL 2 | WITH PARENT) 
-    //   for better performance
-    // - update appState
-    // - update global progress bar 
+    // @notes
+    // [-] delete children doesn't invoke the case LEVEL 2 | WITH PARENT 
+    //     for better performance
     function deleteMainTaskWithChildren() {
 
         // save a copy of the progress it had
@@ -778,9 +855,11 @@ function deleteTask(taskCard) {
         // [1] It is needed to avoid having to place the same conditional when
         //     appState is being updated (netLocalProgressSum)
         var prevLocalProgress = 
-            ( thisTask.progress > 0 ) ?
-                clone(thisTask).progress:
+            thisTask.state.progress>0 ?
+                clone(thisTask).state.progress:
                 0; // [1]
+
+        console.log(thisTask.state.progress);
 
         (function deleteChildrenSubtasks() {
             var subtasks = thisTask.children;
@@ -794,14 +873,12 @@ function deleteTask(taskCard) {
                 subtaskCard.parentNode.removeChild(subtaskCard);
 
                 // delete children subtasks
+                // @notes
+                // [1] Subtasks never get to the tasksDone array, that's why
+                //     working with tasks works in all cases
                 var subtaskObj = tasks.find( (item) => item.id === subtasks[i] );
-                if ( subtaskObj === undefined ) {
-                    // in case that the task was already done
-                    subtaskObj = tasksDone.find( (item) => item.id === subtasks[i] );
-                    tasksDone.splice( tasksDone.indexOf( subtaskObj ), 1); 
-                } else {
-                    tasks.splice( tasks.indexOf( subtaskObj ), 1); 
-                }                
+                tasks.splice( tasks.indexOf( subtaskObj ), 1); // [1]
+                localStorage.setItem("tasks", JSON.stringify(tasks));              
                   
             }
         }());
@@ -814,6 +891,7 @@ function deleteTask(taskCard) {
             appState.taskCount>0  ?  1/appState.taskCount  :  0;
         appState.netLocalProgressSum-= prevLocalProgress;
         appState.globalProgress = appState.taskWeight*appState.netLocalProgressSum;
+        localStorage.setItem("appState", JSON.stringify(appState));
 
         updateGlobalProgress(appState);
 
@@ -835,15 +913,7 @@ function deleteTask(taskCard) {
     }
 
 
-    // LEVEL 2 | WITH PARENT
-    // - delete card
-    // - delete task
-    //     - check if it was done (to know where to look for it). This was 
-    //        already done by thisTask assignation
-    // - update parent's state
-    // - update parent's progress bar
-    // - update appState
-    // - update global progress bar 
+    // LEVEL 2 | WITH PARENT 
     function deleteSubtaskWithParent() {
 
         // find its parent
@@ -858,6 +928,7 @@ function deleteTask(taskCard) {
                 )
             ), 1
         );
+        localStorage.setItem("tasks", JSON.stringify(tasks));
 
         // update its parent's state and UI accordingly
         // @notes
@@ -872,11 +943,12 @@ function deleteTask(taskCard) {
             parentTaskObj.state.subtaskCount--;
             parentTaskObj.state.subtaskWeight = 
                 parentTaskObj.state.subtaskCount>0 ?
-                100/parentTaskObj.state.subtaskCount :
-                0;
+                    100/parentTaskObj.state.subtaskCount :
+                    0;
             parentTaskObj.state.subtasksDone--;
             parentTaskObj.state.progress = 
                 parentTaskObj.state.subtasksDone*parentTaskObj.state.subtaskWeight;
+            localStorage.setItem("tasks", JSON.stringify(tasks));
             updateLocalProgress(thisTask, parentTaskObj);
 
             // update global state and UI accordingly
@@ -885,6 +957,7 @@ function deleteTask(taskCard) {
                 - prevLocalState.progress 
                 + parentTaskObj.state.progress;
             appState.globalProgress = appState.netLocalProgressSum*appState.taskWeight;
+            localStorage.setItem("appState", JSON.stringify(appState));
             updateGlobalProgress(appState);
 
         } else {
@@ -894,10 +967,11 @@ function deleteTask(taskCard) {
             parentTaskObj.state.subtaskCount--;
             parentTaskObj.state.subtaskWeight = 
                 parentTaskObj.state.subtaskCount>0 ?
-                100/parentTaskObj.state.subtaskCount :
-                0;
+                    100/parentTaskObj.state.subtaskCount :
+                    0;
             parentTaskObj.state.progress = 
                 parentTaskObj.state.subtasksDone*parentTaskObj.state.subtaskWeight;
+            localStorage.setItem("tasks", JSON.stringify(tasks));
             // edge case: last subtask undone (in a group of several subtasks)
             if ( parentTaskObj.state.progress === 100 ) {
                 // the idea is to fire the case doneMainTaskWithChildren()
@@ -912,6 +986,7 @@ function deleteTask(taskCard) {
                 - prevLocalState.progress 
                 + parentTaskObj.state.progress;
             appState.globalProgress = appState.netLocalProgressSum*appState.taskWeight;
+            localStorage.setItem("appState", JSON.stringify(appState));
             updateGlobalProgress(appState);
 
         } 
@@ -966,7 +1041,10 @@ function markAsDone(taskCard) {
         // update global tasks data structures
         thisTask.completionDate = new Date();
         tasksDone.push(thisTask);
+        localStorage.setItem("tasksDone", JSON.stringify(tasksDone));
         tasks.splice( tasks.indexOf( thisTask ), 1 );
+
+        localStorage.setItem("tasks", JSON.stringify(tasks));
 
         // update UI elements linked to the card
         taskCard.querySelector(".progress").style.width = "100%";
@@ -981,6 +1059,7 @@ function markAsDone(taskCard) {
         // Update global states
         gameState.xp++;
         gameState.score++;
+        localStorage.setItem("gameState", JSON.stringify(gameState));
         
         if ( invokedDirectly ) {
             // this is made to prevent re-adding the progress when the direct
@@ -990,11 +1069,11 @@ function markAsDone(taskCard) {
             // [2] updateLocalState() → markAsDone → doneSubtaskWithParent()...            
             appState.netLocalProgressSum += thisTask.state.progress;
             appState.globalProgress = appState.netLocalProgressSum*appState.taskWeight;
+            localStorage.setItem("appState", JSON.stringify(appState));
         }
-
-        console.log("LEVEL 1 | NO CHILDREN");
         
         // Update global UI
+        updateStatus();
         updateGlobalProgress(appState);
     }
 
@@ -1033,7 +1112,8 @@ function markAsDone(taskCard) {
                                 (item) => item.id === subtasks[i] 
                             ) 
                         )
-                    , 1); 
+                    , 1);
+                    localStorage.setItem("tasks", JSON.stringify(tasks)); 
 
                 } else {
 
@@ -1046,12 +1126,14 @@ function markAsDone(taskCard) {
                     //     on this value
                     var prevLocalState = clone(thisTask.state);
                     thisTask.state.progress = 100; // [2]
+                    localStorage.setItem("tasks", JSON.stringify(tasks));
                     appState.netLocalProgressSum = 
                         appState.netLocalProgressSum 
                         - prevLocalState.progress
                         + thisTask.state.progress; // [1]
                     appState.globalProgress = 
                         appState.netLocalProgressSum*appState.taskWeight; // [1]
+                    localStorage.setItem("appState", JSON.stringify(appState));
 
                     console.log("LEVEL 1 | WITH CHILDREN");
 
@@ -1083,6 +1165,7 @@ function markAsDone(taskCard) {
         taskCard.querySelector(".card").classList.toggle("card--done");
         // udate subtask data structure
         thisTask.state.progress = 100;
+        localStorage.setItem("tasks", JSON.stringify(tasks));
 
         console.log("LEVEL 2 | NO PARENT");
     }
@@ -1105,6 +1188,8 @@ function markAsDone(taskCard) {
         parentTaskObj.state.subtasksDone++;
         parentTaskObj.state.progress+= parentTaskObj.state.subtaskWeight;
 
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+
         document.getElementById(parentTaskObj.id)
             .querySelector(".progress").style.width 
             = parentTaskObj.state.progress+"%";
@@ -1112,6 +1197,7 @@ function markAsDone(taskCard) {
         // update global states
         appState.netLocalProgressSum+= parentTaskObj.state.subtaskWeight;
         appState.globalProgress = appState.netLocalProgressSum*appState.taskWeight;
+        localStorage.setItem("appState", JSON.stringify(appState));
 
         // update global UI
         updateGlobalProgress(appState);
@@ -1163,6 +1249,7 @@ function markAsUndone(taskCard) {
         taskCard.querySelector(".card").classList.toggle("card--done");
         // udate subtask data structure
         thisTask.state.progress = 0;
+        localStorage.setItem("tasks", JSON.stringify(tasks));
     }
 
     // LEVEL 2 | WITH PARENT
@@ -1181,6 +1268,8 @@ function markAsUndone(taskCard) {
         parentTaskObj.state.subtasksDone--;
         parentTaskObj.state.progress-= parentTaskObj.state.subtaskWeight;
 
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+
         document.getElementById(parentTaskObj.id)
             .querySelector(".progress").style.width 
             = parentTaskObj.state.progress+"%";
@@ -1188,6 +1277,7 @@ function markAsUndone(taskCard) {
         // update global states
         appState.netLocalProgressSum-= parentTaskObj.state.subtaskWeight;
         appState.globalProgress = appState.netLocalProgressSum*appState.taskWeight;
+        localStorage.setItem("appState", JSON.stringify(appState));
 
         // update global UI
         updateGlobalProgress(appState);
@@ -1217,8 +1307,16 @@ function markAsUndone(taskCard) {
 
 
 */
-
-
 }())
+
+var o = {
+    "tasks": tasks,
+    "tasksDone": tasksDone,
+    "appConfig": appConfig,
+    "appState": appState,
+    "gameState": gameState
+};
+
+return o;
 
 }());
