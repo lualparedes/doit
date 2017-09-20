@@ -105,6 +105,7 @@ select {
   src: url("../fonts/icomoon.eot?6igoop#iefix") format("embedded-opentype"), url("../fonts/icomoon.ttf?6igoop") format("truetype"), url("../fonts/icomoon.woff?6igoop") format("woff");
   font-weight: normal;
   font-style: normal; }
+
 [class^="icon-"], [class*=" icon-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'icomoon' !important;
@@ -212,6 +213,7 @@ select {
   background: linear-gradient(to right, #0be4a7, #89e358);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent; }
+
 .checkbutton--done:hover {
   background: transparent;
   color: #333; }
@@ -398,6 +400,7 @@ select {
   font-size: 1.25rem;
   font-weight: bold;
   border-bottom: 2px solid #b3b3b3; }
+
 .user-info__status {
   display: flex;
   padding: 12px 8px; }
@@ -497,5 +500,3 @@ header {
       margin-left: 16px; }
 
 /* Templates */
-
-/*# sourceMappingURL=styles.css.map */

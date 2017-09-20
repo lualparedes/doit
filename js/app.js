@@ -1,6 +1,4 @@
-// poluting with f is meant to expose certain vars when debugging (details in
-// the returned object at the end)
-var f = (function (){
+(function (){
 
 "use strict";
 
@@ -160,7 +158,6 @@ if ( localStorage.length === 0 ) {
     localStorage.setItem("gameState", JSON.stringify(gameState));
     localStorage.setItem("lastReset", JSON.stringify(lastReset));
 
-
 }
 
 // =============================================================================
@@ -213,11 +210,54 @@ lastReset = toDate( JSON.parse( localStorage.getItem("lastReset") ) );
     updateStatus();
 
     (function checkReset() {
-        // check when was the last reset
-        // reset if the date isn't today's
+        var currentDate = new Date();
+        var tasksDoneDeletionCount = 0;
+        // reset if the last reset wasn't today
+        // @notes
+        // [1] Amount of ms in a day.
+        // [2] This must be evaluated in this position, because evaluating it
+        //     after the first condition guarantees that 
+        //     !(currentDate-lastReset > 86400000), i.e. it's been less than a
+        //     a day since the last reset.
+        if ( (currentDate-lastReset > 86400000) || // [1]
+             (lastReset.getDate() < currentDate.getDate())  ) { // [2]
+
             // delete tasks in tasksDone whose date isn't todays
-            // update appState and gameState
+            for (var i = tasksDone.length - 1; i >= 0; i--) {
+
+                if ( toDate(tasksDone[i].completionDate).getDate() !==
+                     currentDate.getDate() ) {
+
+                    tasksDone.splice( tasksDone.indexOf( tasksDone[i] ), 1);
+                    localStorage.setItem("tasksDone", JSON.stringify(tasksDone));
+
+                    tasksDoneDeletionCount++;
+
+                }
+               
+            }
+
+            // update appState, gameState, and lastReset
+            appState.taskCount -= tasksDoneDeletionCount;
+            appState.taskWeight = 
+                appState.taskCount>0 ? 
+                    1/appState.taskCount :
+                    0;
+            appState.netLocalProgressSum -= (100*tasksDoneDeletionCount);
+            appState.globalProgress = appState.taskWeight*appState.netLocalProgressSum;
+            localStorage.setItem("appState", JSON.stringify(appState));
+
+            gameState.score = 0;
+            localStorage.setItem("gameState", JSON.stringify(gameState));
+
+            lastReset = currentDate;
+            localStorage.setItem("lastReset", JSON.stringify(lastReset));
+
             // update UI accordingly
+            updateGlobalProgress(appState);
+            updateStatus();
+
+        }
     }());
 
 }());
@@ -560,14 +600,10 @@ function createTask(e) {
         if ( newTask.level === "Level 2" ) { 
             makeParentageLinks(newTask); 
         }
-        //console.log("before: ")
-        //console.log( localStorage.getItem("tasks") );
-        //console.log(tasks);
+
         tasks.push(newTask);
         localStorage.setItem("tasks", JSON.stringify(tasks));
-        // console.log("after: ")
-        // console.log( localStorage.getItem("tasks") );
-        // console.log(tasks);
+
         // display the new task
         updateDisplayedTasks();
         // reset the card--add
@@ -802,17 +838,7 @@ function askConfirmation(callback, callbackParams) {
         // askConfirmation() is invoked, to allow its reutilization with a 
         // different callback.
         if ( e.target.classList.contains("js-ok") ) {
-
-
-            // console.log("before: ");
-            // console.table(tasks);
-            // console.log(appState);
             callback(callbackParams);
-            // console.log("after: ");
-            // console.table(tasks);
-            // console.log(appState);
-
-
             closeModal();
         } else if ( e.target.classList.contains("js-cancel") ) {
             closeModal();
@@ -859,8 +885,6 @@ function deleteTask(taskCard) {
                 clone(thisTask).state.progress:
                 0; // [1]
 
-        console.log(thisTask.state.progress);
-
         (function deleteChildrenSubtasks() {
             var subtasks = thisTask.children;
             var subtaskCard;
@@ -900,14 +924,10 @@ function deleteTask(taskCard) {
   //----------------------------------------------------------------------------
 
     // LEVEL 2 | NO PARENT
-    // - delete card
-    // - delete task
-    //     - check if it was done (to know where to look for it).This was 
-    //        already done by thisTask assignation
-    // - 🚫 update appState (not needed because it is calculated from
-    //   <parentTask>.state and this task has no parent)
-    // - 🚫 update global progress bar (not needed because it is calculated from
-    //   <parentTask>.state and this task has no parent)
+    // [-] 🚫 update appState (not needed because it is calculated from
+    //     <parentTask>.state and this task has no parent)
+    // [-] 🚫 update global progress bar (not needed because it is calculated 
+    //     from <parentTask>.state and this task has no parent)
     function deleteSubtaskNoParent() {
         deleteTaskObjectAndCard();
     }
@@ -1135,10 +1155,6 @@ function markAsDone(taskCard) {
                         appState.netLocalProgressSum*appState.taskWeight; // [1]
                     localStorage.setItem("appState", JSON.stringify(appState));
 
-                    console.log("LEVEL 1 | WITH CHILDREN");
-
-                    console.log(appState);
-
                     doneMainTaskNoChildren();
 
                 }
@@ -1156,9 +1172,10 @@ function markAsDone(taskCard) {
   //----------------------------------------------------------------------------
 
     // LEVEL 2 | NO PARENT
-    // - 🚫 no need to update any progress thing
-    // - 🚫 avoid changing it from tasks to tasksDone, since it is better to 
-    //   remove it once the user hits delete
+    // @notes
+    // [-] 🚫 no need to update any progress thing
+    // [-] 🚫 avoid changing it from tasks to tasksDone, since it is better to 
+    //     remove it once the user hits delete
     function doneSubtaskNoParent() {
         // update UI elements linked to the card
         changeButtonStyle(taskCard);
@@ -1166,13 +1183,12 @@ function markAsDone(taskCard) {
         // udate subtask data structure
         thisTask.state.progress = 100;
         localStorage.setItem("tasks", JSON.stringify(tasks));
-
-        console.log("LEVEL 2 | NO PARENT");
     }
 
     // LEVEL 2 | WITH PARENT
-    // - 🚫 avoid changing it from tasks to tasksDone, since it is better to 
-    //   remove them all at once after their parent has been completed 
+    // @notes
+    // [-] 🚫 avoid changing it from tasks to tasksDone, since it is better to 
+    //     remove them all at once after their parent has been completed 
     function doneSubtaskWithParent() {
 
         // update UI elements linked to the card
@@ -1208,8 +1224,6 @@ function markAsDone(taskCard) {
             thisTask = parentTaskObj;
             doneMainTaskWithChildren();
         }
-
-        console.log("LEVEL 2 | WITH PARENT");
     }
 
   //----------------------------------------------------------------------------
@@ -1294,29 +1308,18 @@ function markAsUndone(taskCard) {
 
 }
 
-
-///////////////
-///////////////
-///////////////_________________________________________________________________
-/*
-
-- daily reset / initialization
-- clean HTML base
-
-- draganddrop
-
-
-*/
 }())
-
+// for debugging purposes
+// just add var <id> = this function at the beginning 
+/*
 var o = {
     "tasks": tasks,
     "tasksDone": tasksDone,
     "appConfig": appConfig,
     "appState": appState,
-    "gameState": gameState
+    "gameState": gameState,
+    "lastReset": lastReset
 };
 
-return o;
-
+return o;*/
 }());
