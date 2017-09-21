@@ -5,6 +5,7 @@ Every task done adds new points to the user's score and experience, to reward pr
 Ideas for future versions include:
 - Adding due hour
 - Make health value dynamic
+- Drag and drop behavior to change the order of tasks
 
 Check out a live version [here](https://do-it-app-demo.firebaseapp.com/).
 
